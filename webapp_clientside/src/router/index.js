@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import HelloWorld from '@/components/HelloWorld'
+import Players from '@/components/Players'
+import Match from '@/components/Match'  
 
 Vue.use(Router)
 
@@ -8,8 +9,13 @@ export default new Router({
   routes: [
     {
       path: '/',
-      name: 'HelloWorld',
-      component: HelloWorld
+      name: 'Players',
+      component: Players
+    },
+    {
+      path: '/match',      
+      name: 'Match',       
+      component: Match     
     }
   ]
 })
