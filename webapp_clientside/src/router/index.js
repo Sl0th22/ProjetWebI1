@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
+import Welcome from '@/components/Welcome'
 import Players from '@/components/Players'
 import Match from '@/components/Match'  
 import Team from '@/components/Team'  
@@ -9,8 +10,16 @@ Vue.use(Router)
 
 export default new Router({
   routes: [
+
     {
-      path: '/',
+      path: '/',      
+      name: 'Welcome',       
+      component: Welcome 
+    },
+
+
+    {
+      path: '/Players',
       name: 'Players',
       component: Players
     },
@@ -25,6 +34,6 @@ export default new Router({
       component: Team   
     },
 
+    
   ]
 })
-
