@@ -40,14 +40,14 @@
   </script>
   
   <style>
-  .cards-wrapper {
+  .cards-wrapper { /* la bande contenant les cartes */
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 50px;
   }
   
-  .card-container {
+  .card-container { /* toute la boîte avec même la liste des joueurs commme titre */
     text-align: center;
     overflow: hidden;
   }
@@ -55,10 +55,10 @@
   .card {
     width: 200px;
     height: 300px;
-    perspective: 1000px; 
+    perspective: 1000px; /* permet de mieux voir quand ca tourne comme si c'était loin */ 
   }
   
-  .card-inner {
+  .card-inner { /* intérieur de la carte*/ 
     position: relative;
     width: 100%;
     height: 100%;
@@ -74,7 +74,7 @@
     position: absolute;
     width: 100%;
     height: 100%;
-    backface-visibility: hidden;
+    backface-visibility: hidden; /* permet de cacher la face arrière lorsqu'on tourne pour les deux sinon on voit à l'envers */
     display: flex;
     justify-content: center;
     align-items: center;
