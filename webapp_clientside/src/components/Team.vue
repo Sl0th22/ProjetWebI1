@@ -41,12 +41,12 @@ export default {
 };
 </script>
 
-<style scoped>
+<style>
 .team-cards-wrapper {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 20px;
+  gap: 50px;
 }
 
 .team-card-container {
@@ -64,9 +64,8 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
-  transition: transform 0.6s;
+  transition: transform 1s;
   transform-style: preserve-3d;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .team-card:hover .team-card-inner {
@@ -84,7 +83,6 @@ export default {
   flex-direction: column;
   border-radius: 10px;
   padding: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .team-card-front {

@@ -3,7 +3,6 @@
     <h1>Welcome to </h1>
     <h1>The Sport Tournament </h1>
 
-    <!-- Navigation Links -->
     <nav>
       <ul>
         <li><router-link to="/Players">Players</router-link></li>
@@ -12,7 +11,6 @@
       </ul>
     </nav>
 
-    <!-- Where the routed components will be rendered -->
     <router-view></router-view>
   </div>
 </template>
@@ -23,7 +21,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 ul {
   list-style-type: none;
   padding: 0;
