@@ -81,9 +81,6 @@ CREATE TABLE Play(
    FOREIGN KEY(toornament_id) REFERENCES Toornament(toornament_id)
 );
 
--- Insertion des données
--- (Rest of your insertion queries go here...)
-
 -- Insertion de 10 joueurs dans la table Player
 INSERT INTO Player (player_id, player_last_name, player_first_name, player_mail, player_age, player_phone_number)
 VALUES 
@@ -177,12 +174,3 @@ VALUES
 (8, 5),  -- Hawks jouent dans Global Tournament
 (9, 9),  -- Dragons jouent dans Dragon’s Challenge
 (10, 6);  -- Cobras jouent dans World Cup
-
-
-SELECT player_last_name as Nom, player_first_name as Prenom
-FROM Player 
-INNER JOIN Team 
-ON Player.player_id = Team.team_captain
-WHERE team_creation_date = '2021-05-30';
-
-SELECT * FROM Matchs;
