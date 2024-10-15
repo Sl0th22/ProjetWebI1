@@ -1,6 +1,6 @@
 <template>
     <div class="card-container" >
-      <h1>Liste des Matchs</h1>
+      <h1>List of the Matchs</h1>
       <div class="cards-wrapper">
         <div class="card" v-for="match in matches" :key="match.match_id">
           <div class="card-inner">

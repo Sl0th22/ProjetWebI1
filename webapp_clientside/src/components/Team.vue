@@ -1,6 +1,6 @@
 <template>
   <div class="team-card-container">
-    <h1>Liste des Équipes</h1>
+    <h1>List of Teams</h1>
     <div class="team-cards-wrapper">
       <div class="team-card" v-for="team in teams" :key="team.team_id">
         <div class="team-card-inner">
@@ -9,10 +9,10 @@
             <p><strong>Coach :</strong> {{ team.team_coach }}</p>
           </div>
           <div class="team-card-back">
-            <p><strong>Capitaine :</strong> {{ team.team_captain }}</p>
-            <p><strong>Date de création :</strong> {{ team.team_creation_date }}</p>
+            <p><strong>Captain :</strong> {{ team.team_captain }}</p>
+            <p><strong>Date of creation :</strong> {{ team.team_creation_date }}</p>
             <p><strong>Localisation :</strong> {{ team.team_location }}</p>
-            <p><strong>Nombre de joueurs :</strong> {{ team.team_number }}</p>
+            <p><strong>Number of players :</strong> {{ team.team_number }}</p>
           </div>
         </div>
       </div>

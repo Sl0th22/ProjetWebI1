@@ -1,6 +1,6 @@
 <template>
     <div class="card-container" >
-      <h1>Liste des Joueurs</h1>
+      <h1>List of Players</h1>
       <div class="cards-wrapper">
         <div class="card" v-for="player in players" :key="player.player_id">
           <div class="card-inner">
@@ -9,8 +9,8 @@
             </div>
             <div class="card-back">
               <p><strong>Email :</strong> {{ player.player_mail }}</p>
-              <p><strong>Âge :</strong> {{ player.player_age }}</p>
-              <p><strong>Téléphone :</strong> {{ player.player_phone_number }}</p>
+              <p><strong>Age :</strong> {{ player.player_age }}</p>
+              <p><strong>Telephone Number :</strong> {{ player.player_phone_number }}</p>
             </div>
           </div>
         </div>
