@@ -81,6 +81,7 @@ CREATE TABLE Play(
    FOREIGN KEY(toornament_id) REFERENCES Toornament(toornament_id)
 );
 
+
 -- Insertion de 10 joueurs dans la table Player
 INSERT INTO Player (player_id, player_last_name, player_first_name, player_mail, player_age, player_phone_number)
 VALUES 
@@ -174,3 +175,6 @@ VALUES
 (8, 5),  -- Hawks jouent dans Global Tournament
 (9, 9),  -- Dragons jouent dans Dragon’s Challenge
 (10, 6);  -- Cobras jouent dans World Cup
+
+
+
