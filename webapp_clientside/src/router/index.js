@@ -4,8 +4,7 @@ import Welcome from '@/components/Welcome'
 import Players from '@/components/Players'
 import Match from '@/components/Match'  
 import Team from '@/components/Team'  
-
-
+import Login from '@/components/Login'
 Vue.use(Router)
 
 export default new Router({
@@ -34,6 +33,10 @@ export default new Router({
       component: Team   
     },
 
-    
+    {
+      path:'/login',
+      name: 'Login',
+      component : Login
+    },
   ]
 })
