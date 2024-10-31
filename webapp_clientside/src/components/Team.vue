@@ -1,10 +1,18 @@
 <template>
+  <div>
+    <div>
+      <nav>
+      <ul>
+        <li><router-link to="/">Accueil</router-link></li>
+      </ul>
+    </nav>
+  </div>
   <div class="team-card-container">
-    <h1>List of Teams</h1>
+    <h1>List of your Teams</h1>
     <div class="team-cards-wrapper">
       <router-link
         class="team-card"
-        v-for="team in teams" :to="{ name: 'Players', params: { id: team.team_id } }">
+        v-for="team in teams" :key="team in teams":to="{ name: 'Players', params: { id: team.team_id } }">
         <div class="team-card-inner">
           <div class="team-card-front">
             <h2>{{ team.team_name }}</h2>
@@ -20,6 +28,7 @@
       </router-link>
     </div>
   </div>
+</div>
 </template>
 
 <script>

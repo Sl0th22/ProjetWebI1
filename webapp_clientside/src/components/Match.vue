@@ -1,4 +1,12 @@
 <template>
+  <div>
+    <div>
+      <nav>
+      <ul>
+        <li><router-link to="/">Accueil</router-link></li>
+      </ul>
+    </nav>
+  </div>
     <div class="card-container" >
       <h1>List of the Matchs</h1>
       <div class="cards-wrapper">
@@ -17,6 +25,7 @@
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>

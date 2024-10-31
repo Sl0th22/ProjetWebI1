@@ -6,7 +6,7 @@
                 <input type="text" v-model="log" placeholder="Username">
                 <input type="password" v-model="pssw" placeholder="Password">
                 <button @click="Verif(log, pssw)">Login</button>
-                <button @click="Forgot">Forgot Password</button>
+                <button @click="Reset">Reset Password</button>
             </p>
 
             <div v-if="resetPassword">
@@ -54,7 +54,7 @@ export default {
         this.successMessage = "";
       }
     },
-    Forgot() {
+    Reset() {
       this.resetPassword = true;
       this.errorMessage = "";
       this.successMessage = "";
