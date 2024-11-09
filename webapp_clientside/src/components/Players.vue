@@ -219,7 +219,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .card-container {
   text-align: center;
   overflow: hidden;

@@ -4,6 +4,7 @@
       <nav>
       <ul>
         <li><router-link to="/">Accueil</router-link></li>
+        <li><router-link to="/match"> List of your matchs </router-link></li>
       </ul>
     </nav>
   </div>
@@ -52,7 +53,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .team-cards-wrapper {
   display: flex;
   flex-wrap: wrap;

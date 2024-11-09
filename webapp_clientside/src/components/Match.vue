@@ -4,6 +4,7 @@
       <nav>
       <ul>
         <li><router-link to="/">Accueil</router-link></li>
+        <li><router-link to="/team"> Return </router-link></li>
       </ul>
     </nav>
   </div>
@@ -75,7 +76,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 
 .cards-wrapper {
   display: flex;
