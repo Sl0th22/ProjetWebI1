@@ -50,7 +50,7 @@
           <input v-model="newTournament.dateS" type="date" required />
           <input v-model="newTournament.dateE" type="date" required />
           <input v-model.number="newTournament.place" type="number" min="0" placeholder="Current Teams" required />
-          <input v-model.number="newTournament.maxEquipes" type="number" min="1" placeholder="Max Teams" required />
+          <input v-model.number="newTournament.maxEquipes" type="number" placeholder="Max Teams" required />
           <input v-model="newTournament.type" placeholder="Sport Type" required />
           <button type="submit">Add</button>
           <button @click="showAddModal = false">Cancel</button>

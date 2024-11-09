@@ -75,7 +75,7 @@ export default {
         team_coach: '',
         team_captain: '',
         team_location: '',
-        team_number: 1,
+        team_number: '',
         team_creation_date: ''
       },
       teamNameToDelete: '',
