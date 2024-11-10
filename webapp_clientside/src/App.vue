@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <img src="./assets/Sport_tournament.png">
     <router-view/>
   </div>
 </template>
