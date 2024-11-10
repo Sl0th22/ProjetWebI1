@@ -49,7 +49,7 @@
         <p>Number of places: {{ tournoi.place }} / {{ tournoi.maxEquipes }}</p>
         <p>Type: {{ tournoi.type }}</p>
 
-        <div v-if=" connected === 'user'">
+        <div v-if="connected === 'user'">
           <button v-if="tournoi.place >= tournoi.maxEquipes" disabled>Complete</button>
           <button v-else @click="register(tournoi)">Register</button>
         </div>

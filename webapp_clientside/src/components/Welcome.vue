@@ -98,7 +98,11 @@ export default {
   display: inline-block;
 }
 
-.nav-links a {
+li:hover {
+  transform: scale(1.1);
+}
+
+a {
   text-decoration: none;
   color: #f3f4f6;
   font-size: 1rem;
