@@ -34,7 +34,7 @@
         <p>Number of places: {{ tournoi.place }} / {{ tournoi.maxEquipes }}</p>
         <p>Type: {{ tournoi.type }}</p>
 
-        <div v-if="connected === 'admin' || connected === 'user'">
+        <div v-if="connected === 'user'">
           <button v-if="tournoi.place >= tournoi.maxEquipes" disabled>Complete</button>
           <button v-else @click="register(tournoi)">Register</button>
         </div>
@@ -151,7 +151,6 @@ export default {
       this.selectedSport = sport;
     },
     register(tournoi) {
-      // Incrémenter le nombre d'équipes inscrites
       if (tournoi.place < tournoi.maxEquipes) {
         tournoi.place++;
         alert(`You have registered for the ${tournoi.nom} tournament!`);

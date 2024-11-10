@@ -32,7 +32,7 @@ li {
 }
 
 li:hover {
-  transform: scale(1.1); /* Effet de zoom au survol */
+  transform: scale(1.1);
 }
 
 a {
