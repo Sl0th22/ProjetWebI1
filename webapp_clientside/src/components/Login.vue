@@ -7,7 +7,7 @@
       </div>
       <nav class="nav-links">
         <ul>
-          <li><router-link to="/">Accueil</router-link></li>
+          <li><router-link to="/">Home</router-link></li>
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
@@ -20,14 +20,12 @@
     <main class="content">
       <h2>{{ currentFormTitle }}</h2>
 
-      <!-- Boutons pour basculer entre les formulaires -->
       <div class="form-switcher">
         <button @click="switchForm('login')" :class="{ active: currentForm === 'login' }">Login</button>
         <button @click="switchForm('register')" :class="{ active: currentForm === 'register' }">Register</button>
         <button @click="switchForm('resetPassword')" :class="{ active: currentForm === 'resetPassword' }">Reset Password</button>
       </div>
 
-      <!-- Formulaire de Login -->
       <form v-if="currentForm === 'login'" @submit.prevent="loginUser">
         <input type="text" v-model="log" placeholder="Username" required />
         <input type="password" v-model="pssw" placeholder="Password" required />
@@ -36,7 +34,6 @@
         <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
       </form>
 
-      <!-- Formulaire d'inscription -->
       <form v-if="currentForm === 'register'" @submit.prevent="registerUser">
         <input type="text" v-model="newUsername" placeholder="Username" required />
         <input type="password" v-model="newPassword" placeholder="Password" required />
@@ -46,7 +43,6 @@
         <p v-if="registerSuccess" class="success-message">{{ registerSuccess }}</p>
       </form>
 
-      <!-- Formulaire de réinitialisation du mot de passe -->
       <form v-if="currentForm === 'resetPassword'" @submit.prevent="resetPassword">
         <input type="text" v-model="resetLog" placeholder="Username" required />
         <input type="password" v-model="oldPssw" placeholder="Old Password" required />
@@ -65,26 +61,22 @@ export default {
   name: 'AuthPage',
   data() {
     return {
-      currentForm: 'login', // Formulaire courant: 'login', 'register' ou 'resetPassword'
+      currentForm: 'login', 
 
-      // Données des utilisateurs (logs et mots de passe)
       logs: ['log1', 'log2', 'log3'],
       psswds: ['passw1', 'passw2', 'passwd3'],
 
-      // Variables pour le formulaire de login
       log: '',
       pssw: '',
       errorMessage: '',
       successMessage: '',
 
-      // Variables pour le formulaire d'inscription
       newUsername: '',
       newPassword: '',
       confirmPassword: '',
       registerError: '',
       registerSuccess: '',
 
-      // Variables pour le formulaire de réinitialisation du mot de passe
       resetLog: '',
       oldPssw: '',
       newPssw: '',
@@ -100,13 +92,11 @@ export default {
   methods: {
     switchForm(form) {
       this.currentForm = form;
-      // Réinitialiser les messages d'erreur et de succès lors du changement de formulaire
       this.errorMessage = '';
       this.successMessage = '';
       this.registerError = '';
       this.registerSuccess = '';
 
-      // Réinitialiser les champs
       this.log = '';
       this.pssw = '';
       this.newUsername = '';
@@ -137,12 +127,10 @@ export default {
         this.registerError = 'Username already exists.';
         this.registerSuccess = '';
       } else {
-        // Ajouter le nouvel utilisateur
         this.logs.push(this.newUsername);
         this.psswds.push(this.newPassword);
         this.registerError = '';
         this.registerSuccess = 'Registration successful!';
-        // Réinitialiser les champs
         this.newUsername = '';
         this.newPassword = '';
         this.confirmPassword = '';
@@ -154,7 +142,6 @@ export default {
         this.psswds[logIndex] = this.newPssw;
         this.successMessage = 'Password changed successfully!';
         this.errorMessage = '';
-        // Réinitialiser les champs
         this.resetLog = '';
         this.oldPssw = '';
         this.newPssw = '';
@@ -270,7 +257,6 @@ h2 {
   margin-bottom: 15px;
 }
 
-/* Styles pour les boutons de changement de formulaire */
 .form-switcher {
   display: flex;
   margin-bottom: 20px;
@@ -331,7 +317,6 @@ button[type='button']:hover {
   background-color: #1a5276;
 }
 
-/* Styles pour les messages d'erreur et de succès */
 .error-message {
   color: red;
   font-size: 14px;

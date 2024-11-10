@@ -7,7 +7,7 @@
       </div>
       <nav class="nav-links">
         <ul>
-          <li><router-link to="/">Accueil</router-link></li>
+          <li><router-link to="/">Home</router-link></li>
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>

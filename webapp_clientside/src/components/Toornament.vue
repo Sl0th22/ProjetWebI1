@@ -7,7 +7,7 @@
       </div>
       <nav class="nav-links">
         <ul>
-          <li><router-link to="/">Accueil</router-link></li>
+          <li><router-link to="/">Home</router-link></li>
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
@@ -59,7 +59,7 @@
         </button>
 
         <div class="matches-section" v-if="matchesVisibility[tournoi.tournament_id]">
-          <h3>Matchs pour {{ tournoi.nom }}</h3>
+          <h3>Matchs for {{ tournoi.nom }}</h3>
           <div v-for="match in getMatchesForTournament(tournoi.tournament_id)" :key="match.match_id" class="match-item">
             <p>
               <strong>{{ match.team1 }}</strong> vs <strong>{{ match.team2 }}</strong> le {{ match.match_date }}

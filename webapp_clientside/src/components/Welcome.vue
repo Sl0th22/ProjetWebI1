@@ -7,7 +7,7 @@
       </div>
       <nav class="nav-links">
         <ul>
-          <li><router-link to="/">Accueil</router-link></li>
+          <li><router-link to="/">Home</router-link></li>
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
@@ -134,28 +134,27 @@ h2 {
 }
 
 
-/* Styles pour le bouton "Register" */
 button {
   display: inline-block;
   padding: 12px 24px;
   font-size: 16px;
-  background-color: red; /* Couleur verte */
+  background-color: red; 
   color: black;
   border: none;
   border-radius: 5px;
   cursor: pointer;
-  text-decoration: none; /* Pour enlever le soulignement du lien */
+  text-decoration: none;
   transition: background-color 0.3s, transform 0.2s;
-  margin-top: 20px; /* Ajustez la marge selon vos besoins */
+  margin-top: 20px; 
 }
 
 button:hover {
-  background-color: red; /* Vert plus foncé au survol */
+  background-color: red; 
   transform: scale(1.05);
 }
 
 button:active {
-  background-color: white; /* Vert encore plus foncé au clic */
+  background-color: white; 
   transform: scale(0.95);
   
 }
