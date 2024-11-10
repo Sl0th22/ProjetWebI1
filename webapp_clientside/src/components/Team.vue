@@ -17,13 +17,7 @@
       </nav>
     </header>
     <div>
-      <nav>
-        <br>
-        <ul>
-          <li><router-link to="/">Accueil</router-link></li>
-          <li><router-link to="/match"> List of your matchs </router-link></li>
-        </ul>
-      </nav>
+<br>
     </div>
 
     <div class="edit-buttons">
@@ -151,14 +145,14 @@ export default {
 
 <style scoped>
 
-/* Barre de navigation */
+
 .navbar {
   width: 1450px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 30px;
-  background-color: #1f2937; /* Couleur sombre élégante */
+  background-color: #1f2937; 
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
@@ -190,7 +184,6 @@ export default {
   margin: 0;
 }
 
-/* Liens de navigation */
 .nav-links ul {
   list-style-type: none;
   display: flex;

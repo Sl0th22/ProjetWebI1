@@ -54,8 +54,11 @@
           <button v-else @click="register(tournoi)">Register</button>
         </div>
 
-        <!-- Section pour afficher les matchs associés au tournoi -->
-        <div class="matches-section">
+        <button @click="toggleMatchesVisibility(tournoi.tournament_id)" class="btn-toggle-matches">
+          {{ matchesVisibility[tournoi.tournament_id] ? 'Hide Matches' : 'Show Matches' }}
+        </button>
+
+        <div class="matches-section" v-if="matchesVisibility[tournoi.tournament_id]">
           <h3>Matchs pour {{ tournoi.nom }}</h3>
           <div v-for="match in getMatchesForTournament(tournoi.tournament_id)" :key="match.match_id" class="match-item">
             <p>
@@ -80,15 +83,12 @@
           <input v-model="newTournament.dateE" type="date" required />
           <input v-model.number="newTournament.place" type="number" min="0" placeholder="Current Teams" required />
           <input v-model.number="newTournament.maxEquipes" type="number" min="1" placeholder="Max Teams" required />
-
-          <!-- Select aligné avec les autres champs input -->
-          <select id="select2" v-model="newTournament.type" required>
-            <option value="" disabled>Select Sport Type</option>
+          <input list="sportsList" v-model="newTournament.type" placeholder="Enter or select a sport" required />
+          <datalist id="sportsList">
             <option v-for="sport in sportsTypes" :key="sport" :value="sport">
               {{ sport }}
             </option>
-          </select>
-
+          </datalist>
           <button type="submit">Add</button>
           <button @click="showAddModal = false">Cancel</button>
         </form>
@@ -178,7 +178,7 @@ export default {
         },
         {
           match_id: 'M004',
-          team1: 'Le Tigre dormbvcbcvant',
+          team1: 'Le Tigre dormant',
           team2: 'La Tortue mangeuse de chats',
           match_date: '2024-05-05',
           score_team1: 1,
@@ -186,31 +186,31 @@ export default {
           tournament_id: 'T001'
         },
         {
-            match_id: 'M005',
-            team1 : 'Le Tigre dormqsqant',
-            team2 : 'La Tortue mangeusewxc de chats',
-            match_date: '2024-05-05',
-            score_team1: 1,
-            score_team2: 0,
-            tournament_id: 'T001'
+          match_id: 'M005',
+          team1: 'Le Tigre dormant',
+          team2: 'La Tortue mangeuse de chats',
+          match_date: '2024-05-05',
+          score_team1: 1,
+          score_team2: 0,
+          tournament_id: 'T001'
         },
         {
-            match_id: 'M006',
-            team1 : 'Le Tigre dorqsdmant',
-            team2 : 'La Tortue mangeuseqv de chats',
-            match_date: '2024-05-05',
-            score_team1: 1,
-            score_team2: 0,
-            tournament_id: 'T004'
+          match_id: 'M006',
+          team1: 'Le Tigre dormant',
+          team2: 'La Tortue mangeuse de chats',
+          match_date: '2024-05-05',
+          score_team1: 1,
+          score_team2: 0,
+          tournament_id: 'T004'
         },
         {
-            match_id: 'M007',
-            team1 : 'Le Tigre dovxcvrmant',
-            team2 : 'La Tortue mangeuse de chats',
-            match_date: '2024-05-05',
-            score_team1: 1,
-            score_team2: 0,
-            tournament_id: 'T005'
+          match_id: 'M007',
+          team1: 'Le Tigre dormant',
+          team2: 'La Tortue mangeuse de chats',
+          match_date: '2024-05-05',
+          score_team1: 1,
+          score_team2: 0,
+          tournament_id: 'T005'
         },
       ],
       selectedSport: "",
@@ -224,7 +224,8 @@ export default {
         place: 0,
         maxEquipes: 1,
         type: ""
-      }
+      },
+      matchesVisibility: {}, 
     };
   },
   computed: {
@@ -280,20 +281,22 @@ export default {
       return this.matches.filter(
         match => match.tournament_id === tournament_id
       );
-    }
+    },
+    toggleMatchesVisibility(tournament_id) {
+      this.$set(this.matchesVisibility, tournament_id, !this.matchesVisibility[tournament_id]);
+    },
   }
 };
 </script>
 
 <style scoped>
-/* Barre de navigation */
 .navbar {
   width: 1450px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 30px;
-  background-color: #1f2937; /* Couleur sombre élégante */
+  background-color: #1f2937; 
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
@@ -325,7 +328,6 @@ export default {
   margin: 0;
 }
 
-/* Liens de navigation */
 .nav-links ul {
   list-style-type: none;
   display: flex;
@@ -353,7 +355,6 @@ export default {
   transform: translateY(-2px);
 }
 
-/* Styles de base pour le layout */
 ul  {
   list-style-type: none;
   padding: 0;
@@ -373,8 +374,6 @@ a {
   color: black;
 }
 
-
-/* Alignement du formulaire d'ajout de tournoi */
 .form-container {
   
   display: flex;
@@ -401,8 +400,7 @@ input {
 }
 
 #select2{
-
-  margin-left: 20px; /* Déplace le texte de 20 pixels vers la droite */
+  margin-left: 20px; 
   padding: 8px;
   font-size: 16px;
   width: 360px;
@@ -501,7 +499,6 @@ input {
   transition: background-color 0.3s;
 }
 
-/* Styles pour la section des matchs */
 .matches-section {
   margin-top: 20px;
 }
@@ -515,5 +512,21 @@ input {
 
 .match-item p {
   margin: 5px 0;
+}
+
+.btn-toggle-matches {
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: background-color 0.3s;
+}
+
+.btn-toggle-matches:hover {
+  background-color: #2980b9;
 }
 </style>

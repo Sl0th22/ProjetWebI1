@@ -19,7 +19,7 @@
 
     <main class="content">
       <h2>Welcome to the Ultimate Sports Experience</h2>
-      <p>Join us for an unforgettable journey through thrilling matches and competition.</p>
+      <button><router-link to="/Login">Register</router-link></button>
     </main>
   </div>
 </template>
@@ -31,29 +31,27 @@ export default {
 </script>
 
 <style scoped>
-/* Structure générale */
 .welcome-page {
   display: flex;
   flex-direction: column;
   align-items: center;
   font-family: 'Arial', sans-serif;
-  background: linear-gradient(135deg, #e0eafc, #cfdef3); /* Dégradé doux et moderne */
+  background: linear-gradient(135deg, #e0eafc, #cfdef3); 
   color: #333;
   min-height: 100vh;
   background-image: url("../assets/bg.png");
   background-repeat: no-repeat;
-  background-position: center;
+  background-position: center 9px;
 
 }
 
-/* Barre de navigation */
 .navbar {
   width: 1450px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 30px;
-  background-color: #1f2937; /* Couleur sombre élégante */
+  background-color: #1f2937; 
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   position: fixed;
   top: 0;
@@ -85,7 +83,6 @@ export default {
   margin: 0;
 }
 
-/* Liens de navigation */
 .nav-links ul {
   list-style-type: none;
   display: flex;
@@ -117,30 +114,53 @@ a {
   transform: translateY(-2px);
 }
 
-/* Contenu principal */
 .content {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin-top: 200px; /* Compense la hauteur de la barre de navigation */
+  margin-top: 300px; 
   color: #1f2937;
   padding: 20px;
 }
 
 h2 {
-  font-size: 2.5rem;
+  font-size: 3.5rem;
   margin: 0;
   font-weight: bold;
-  color: #111827;
+  color: black;
   letter-spacing: 1px;
   margin-bottom: 15px;
 }
 
-p {
-  font-size: 1.2rem;
+
+/* Styles pour le bouton "Register" */
+button {
+  display: inline-block;
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: red; /* Couleur verte */
   color: black;
-  max-width: 600px;
-  line-height: 1.6;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none; /* Pour enlever le soulignement du lien */
+  transition: background-color 0.3s, transform 0.2s;
+  margin-top: 20px; /* Ajustez la marge selon vos besoins */
 }
+
+button:hover {
+  background-color: red; /* Vert plus foncé au survol */
+  transform: scale(1.05);
+}
+
+button:active {
+  background-color: white; /* Vert encore plus foncé au clic */
+  transform: scale(0.95);
+  
+}
+
+
+
+
 </style>
