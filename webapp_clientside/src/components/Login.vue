@@ -29,28 +29,32 @@
 
       <!-- Formulaire de Login -->
       <form v-if="currentForm === 'login'" @submit.prevent="loginUser">
-        <input type="email" v-model="loginEmail" placeholder="Email" required />
-        <input type="password" v-model="loginPassword" placeholder="Password" required />
+        <input type="text" v-model="log" placeholder="Username" required />
+        <input type="password" v-model="pssw" placeholder="Password" required />
         <button type="submit">Login</button>
-        <p v-if="loginError" class="error-message">{{ loginError }}</p>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+        <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
       </form>
 
       <!-- Formulaire d'inscription -->
       <form v-if="currentForm === 'register'" @submit.prevent="registerUser">
-        <input type="text" v-model="username" placeholder="Username" required />
-        <input type="email" v-model="email" placeholder="Email" required />
-        <input type="password" v-model="password" placeholder="Password" required />
+        <input type="text" v-model="newUsername" placeholder="Username" required />
+        <input type="password" v-model="newPassword" placeholder="Password" required />
         <input type="password" v-model="confirmPassword" placeholder="Confirm Password" required />
         <button type="submit">Register</button>
         <p v-if="registerError" class="error-message">{{ registerError }}</p>
+        <p v-if="registerSuccess" class="success-message">{{ registerSuccess }}</p>
       </form>
 
       <!-- Formulaire de réinitialisation du mot de passe -->
       <form v-if="currentForm === 'resetPassword'" @submit.prevent="resetPassword">
-        <input type="email" v-model="resetEmail" placeholder="Enter your email" required />
+        <input type="text" v-model="resetLog" placeholder="Username" required />
+        <input type="password" v-model="oldPssw" placeholder="Old Password" required />
+        <input type="password" v-model="newPssw" placeholder="New Password" required />
         <button type="submit">Reset Password</button>
-        <p v-if="resetError" class="error-message">{{ resetError }}</p>
-        <p v-if="resetSuccess" class="success-message">{{ resetSuccess }}</p>
+        <button type="button" @click="CancelReset">Cancel</button>
+        <p v-if="errorMessage" class="error-message">{{ errorMessage }}</p>
+        <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
       </form>
     </main>
   </div>
@@ -63,22 +67,27 @@ export default {
     return {
       currentForm: 'login', // Formulaire courant: 'login', 'register' ou 'resetPassword'
 
-      // Données pour le formulaire de login
-      loginEmail: '',
-      loginPassword: '',
-      loginError: '',
+      // Données des utilisateurs (logs et mots de passe)
+      logs: ['log1', 'log2', 'log3'],
+      psswds: ['passw1', 'passw2', 'passwd3'],
 
-      // Données pour le formulaire d'inscription
-      username: '',
-      email: '',
-      password: '',
+      // Variables pour le formulaire de login
+      log: '',
+      pssw: '',
+      errorMessage: '',
+      successMessage: '',
+
+      // Variables pour le formulaire d'inscription
+      newUsername: '',
+      newPassword: '',
       confirmPassword: '',
       registerError: '',
+      registerSuccess: '',
 
-      // Données pour le formulaire de réinitialisation
-      resetEmail: '',
-      resetError: '',
-      resetSuccess: '',
+      // Variables pour le formulaire de réinitialisation du mot de passe
+      resetLog: '',
+      oldPssw: '',
+      newPssw: '',
     };
   },
   computed: {
@@ -92,47 +101,70 @@ export default {
     switchForm(form) {
       this.currentForm = form;
       // Réinitialiser les messages d'erreur et de succès lors du changement de formulaire
-      this.loginError = '';
+      this.errorMessage = '';
+      this.successMessage = '';
       this.registerError = '';
-      this.resetError = '';
-      this.resetSuccess = '';
+      this.registerSuccess = '';
+
+      // Réinitialiser les champs
+      this.log = '';
+      this.pssw = '';
+      this.newUsername = '';
+      this.newPassword = '';
+      this.confirmPassword = '';
+      this.resetLog = '';
+      this.oldPssw = '';
+      this.newPssw = '';
     },
     loginUser() {
-      // Logique de connexion (à implémenter)
-      if (!this.loginEmail || !this.loginPassword) {
-        this.loginError = 'Veuillez entrer votre email et mot de passe.';
+      const logIndex = this.logs.indexOf(this.log);
+      if (logIndex !== -1 && this.psswds[logIndex] === this.pssw) {
+        this.successMessage = 'Connexion réussie ! Redirection...';
+        this.errorMessage = '';
+        setTimeout(() => {
+          this.$router.push('/Team');
+        }, 2000);
       } else {
-        this.loginError = '';
-        alert('Connexion réussie !');
-        // Réinitialiser les champs du formulaire de login
-        this.loginEmail = '';
-        this.loginPassword = '';
+        this.errorMessage = 'Username or password incorrect.';
+        this.successMessage = '';
       }
     },
     registerUser() {
-      if (this.password !== this.confirmPassword) {
-        this.registerError = 'Les mots de passe ne correspondent pas.';
+      if (this.newPassword !== this.confirmPassword) {
+        this.registerError = 'Passwords do not match.';
+        this.registerSuccess = '';
+      } else if (this.logs.includes(this.newUsername)) {
+        this.registerError = 'Username already exists.';
+        this.registerSuccess = '';
       } else {
-        // Logique d'inscription (à implémenter)
+        // Ajouter le nouvel utilisateur
+        this.logs.push(this.newUsername);
+        this.psswds.push(this.newPassword);
         this.registerError = '';
-        alert('Inscription réussie !');
-        // Réinitialiser les champs du formulaire d'inscription
-        this.username = '';
-        this.email = '';
-        this.password = '';
+        this.registerSuccess = 'Registration successful!';
+        // Réinitialiser les champs
+        this.newUsername = '';
+        this.newPassword = '';
         this.confirmPassword = '';
       }
     },
     resetPassword() {
-      // Logique de réinitialisation du mot de passe (à implémenter)
-      if (!this.resetEmail) {
-        this.resetError = 'Veuillez entrer votre email.';
+      const logIndex = this.logs.indexOf(this.resetLog);
+      if (logIndex !== -1 && this.psswds[logIndex] === this.oldPssw) {
+        this.psswds[logIndex] = this.newPssw;
+        this.successMessage = 'Password changed successfully!';
+        this.errorMessage = '';
+        // Réinitialiser les champs
+        this.resetLog = '';
+        this.oldPssw = '';
+        this.newPssw = '';
       } else {
-        this.resetError = '';
-        this.resetSuccess = 'Un email a été envoyé pour réinitialiser votre mot de passe.';
-        // Réinitialiser le champ du formulaire de réinitialisation
-        this.resetEmail = '';
+        this.errorMessage = 'Username or old password incorrect.';
+        this.successMessage = '';
       }
+    },
+    CancelReset() {
+      this.switchForm('login');
     },
   },
 };
@@ -150,7 +182,8 @@ export default {
 }
 
 .navbar {
-  width: 1450px;
+  width: 100%;
+  max-width: 1450px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -280,7 +313,8 @@ input {
   border-radius: 5px;
 }
 
-button[type="submit"] {
+button[type='submit'],
+button[type='button'] {
   padding: 12px;
   font-size: 16px;
   background-color: #2874a6;
@@ -289,9 +323,11 @@ button[type="submit"] {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-bottom: 10px;
 }
 
-button[type="submit"]:hover {
+button[type='submit']:hover,
+button[type='button']:hover {
   background-color: #1a5276;
 }
 

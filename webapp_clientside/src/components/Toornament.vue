@@ -51,7 +51,7 @@
 
         <div v-if="connected === 'user'">
           <button v-if="tournoi.place >= tournoi.maxEquipes" disabled>Complete</button>
-          <button v-else @click="register(tournoi)">Register</button>
+          <button v-else @click="openTeamSelection(tournoi)">Register</button>
         </div>
 
         <button @click="toggleMatchesVisibility(tournoi.tournament_id)" class="btn-toggle-matches">
@@ -71,6 +71,22 @@
         </div>
 
         <hr />
+      </div>
+    </div>
+
+    <div v-if="showTeamModal" class="modal">
+      <div class="modal-content">
+        <h3>Select a Team</h3>
+        <form @submit.prevent="register(selectedTournament)">
+          <select v-model="selectedTeam" required class="team-select">
+            <option value="" disabled>Select your team</option>
+            <option v-for="team in teams" :key="team.team_id" :value="team.team_id">
+              {{ team.name }}
+            </option>
+          </select>
+          <button type="submit">Confirm Registration</button>
+          <button type="button" @click="closeTeamModal">Cancel</button>
+        </form>
       </div>
     </div>
 
@@ -225,7 +241,17 @@ export default {
         maxEquipes: 1,
         type: ""
       },
-      matchesVisibility: {}, 
+      matchesVisibility: {},
+      teams: [
+        { team_id: 'Team001', name: 'Les Lions' },
+        { team_id: 'Team002', name: 'Les Tigres' },
+        { team_id: 'Team003', name: 'Les Aigles' },
+        { team_id: 'Team004', name: 'Les Dragons' },
+        { team_id: 'Team005', name: 'Les Phoenix' },
+      ],
+      showTeamModal: false,
+      selectedTeam: '',
+      selectedTournament: null,
     };
   },
   computed: {
@@ -244,14 +270,6 @@ export default {
   methods: {
     filter(sport) {
       this.selectedSport = sport;
-    },
-    register(tournoi) {
-      if (tournoi.place < tournoi.maxEquipes) {
-        tournoi.place++;
-        alert(`You have registered for the ${tournoi.nom} tournament!`);
-      } else {
-        alert("This tournament is full.");
-      }
     },
     switchconnect() {
       const connectionLevels = ["visitor", "user", "admin"];
@@ -284,6 +302,32 @@ export default {
     },
     toggleMatchesVisibility(tournament_id) {
       this.$set(this.matchesVisibility, tournament_id, !this.matchesVisibility[tournament_id]);
+    },
+    openTeamSelection(tournoi) {
+      this.selectedTournament = tournoi;
+      this.showTeamModal = true;
+    },
+    closeTeamModal() {
+      this.showTeamModal = false;
+      this.selectedTeam = '';
+      this.selectedTournament = null;
+    },
+    register(tournoi) {
+      if (!this.selectedTeam) {
+        alert('Please select a team.');
+        return;
+      }
+      if (tournoi.place < tournoi.maxEquipes) {
+        tournoi.place++;
+        alert(`You have registered for the ${tournoi.nom} tournament with the team ${this.getTeamName(this.selectedTeam)}!`);
+        this.closeTeamModal();
+      } else {
+        alert("This tournament is full.");
+      }
+    },
+    getTeamName(team_id) {
+      const team = this.teams.find(team => team.team_id === team_id);
+      return team ? team.name : '';
     },
   }
 };
@@ -375,7 +419,6 @@ a {
 }
 
 .form-container {
-  
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -406,7 +449,6 @@ input {
   width: 360px;
   box-sizing: border-box;
 }
-
 
 button {
   padding: 10px 15px;
@@ -528,5 +570,17 @@ input {
 
 .btn-toggle-matches:hover {
   background-color: #2980b9;
+}
+
+.team-select {
+  padding: 8px;
+  font-size: 16px;
+  width: 100%;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+
+.modal-content form button {
+  margin: 5px;
 }
 </style>
