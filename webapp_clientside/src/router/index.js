@@ -5,6 +5,7 @@ import Players from '@/components/Players'
 import Match from '@/components/Match'  
 import Team from '@/components/Team'  
 import Login from '@/components/Login'
+import Toornament from '@/components/Toornament'
 Vue.use(Router)
 
 export default new Router({
@@ -38,5 +39,11 @@ export default new Router({
       name: 'Login',
       component : Login
     },
+
+    {
+      path:'/toornament',
+      name:'Toornament',
+      component : Toornament
+    }
   ]
 })

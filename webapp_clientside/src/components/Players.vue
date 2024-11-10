@@ -1,28 +1,55 @@
 <template>
+  <div>
+    <header class="navbar">
+      <div class="navbar-left">
+        <img src="@/assets/Sport_tournament.png" alt="Sport Tournament Logo" class="logo" />
+        <h1 class="site-title">The Sport Tournament</h1>
+      </div>
+      <nav class="nav-links">
+        <ul>
+          <li><router-link to="/">Home</router-link></li>
+          <li><router-link to="/toornament">Toornament</router-link></li>
+          <li><router-link to="/match">Match</router-link></li>
+          <li><router-link to="/team">Team</router-link></li>
+          <li><router-link to="/Players">Player</router-link></li>
+          <li><router-link to="/login">Login</router-link></li>
+        </ul>
+      </nav>
+    </header>
   <div class="card-container">
+
+    
     <h1>List of Players</h1>
+
     <div class="Edit">
-      <button v-on:click="dlt"> Delete </button>
+      <button v-on:click="dlt">Delete</button>
       <button v-on:click="Edit">{{ isEditing ? 'Save' : 'Edit' }}</button>
       <button v-on:click="toggleAddPlayer">{{ isAdding ? 'Cancel' : 'Add' }}</button>
-      <button v-if="isAdding" class="submit-button" @click="addPlayer">Submit</button>
     </div>
 
-    <div v-if="isDeleting" class="delete-player">
-      <h2>Delete Player</h2>
-      <input type="text" v-model="id" placeholder="ID of your player"/>
-      <button @click="deletePlayer">Confirm Delete</button>
-      <button @click="isDeleting = false">Cancel</button>
+    <div v-if="isDeleting" class="modal">
+      <div class="modal-content">
+        <h3>Delete Player</h3>
+        <input type="text" v-model="id" placeholder="ID of your player"/>
+        <button @click="deletePlayer">Confirm Delete</button>
+        <button @click="isDeleting = false">Cancel</button>
+      </div>
     </div>
 
-    <div v-if="isAdding" class="add-player-form">
-      <h2>Add New Player</h2>
-      <input type="text" v-model="newPlayer.player_first_name" placeholder="First Name" />
-      <input type="text" v-model="newPlayer.player_last_name" placeholder="Last Name" />
-      <input type="text" v-model="newPlayer.player_mail" placeholder="Email" />
-      <input type="number" v-model="newPlayer.player_age" min="1" placeholder="Age" />
-      <input type="text" v-model="newPlayer.player_phone_number" placeholder="Phone Number" />
-      <div v-if="addPlayerError" class="error">{{ addPlayerError }}</div>
+    <div v-if="isAdding" class="modal">
+      <div class="modal-content">
+        <h3>Add New Player</h3>
+        <form @submit.prevent="addPlayer">
+          <input v-model="newPlayer.player_first_name" type="text" placeholder="First Name" required />
+          <input v-model="newPlayer.player_last_name" type="text" placeholder="Last Name" required />
+          <input v-model="newPlayer.player_mail" type="email" placeholder="Email" required />
+          <input v-model="newPlayer.player_age" type="number" placeholder="Age" required />
+          <input v-model="newPlayer.player_phone_number" type="text" placeholder="Phone Number" required />
+          <button type="submit">Add</button>
+          <button @click="isAdding = false">Cancel</button>
+        </form>
+        <div v-if="addPlayerError" class="error">{{ addPlayerError }}</div>
+      </div>
     </div>
 
     <div class="notification">
@@ -38,22 +65,22 @@
             <h2>{{ player.player_first_name }} {{ player.player_last_name }}</h2>
           </div>
           <div class="card-back">
-            <p> <strong> ID : </strong>{{ player.player_id }}</p>
-            <p><strong>Email :</strong>
+            <p><strong>ID:</strong> {{ player.player_id }}</p>
+            <p><strong>Email:</strong>
               <span v-if="isEditing">
                 <input type="text" v-model="player.player_mail" />
                 <span v-if="emailErrors[player.player_id]" class="error">{{ emailErrors[player.player_id] }}</span>
               </span>
               <span v-else>{{ player.player_mail }}</span>
             </p>
-            <p><strong>Age :</strong>
+            <p><strong>Age:</strong>
               <span v-if="isEditing">
                 <input type="number" v-model="player.player_age" min="1" />
                 <span v-if="ageErrors[player.player_id]" class="error">{{ ageErrors[player.player_id] }}</span>
               </span>
               <span v-else>{{ player.player_age }}</span>
             </p>
-            <p><strong>Telephone Number :</strong>
+            <p><strong>Phone Number:</strong>
               <span v-if="isEditing">
                 <input type="text" v-model="player.player_phone_number" />
                 <span v-if="phoneErrors[player.player_id]" class="error">{{ phoneErrors[player.player_id] }}</span>
@@ -65,7 +92,10 @@
       </div>
     </div>
   </div>
+</div>
+
 </template>
+
 
 <script>
 export default {
@@ -139,9 +169,9 @@ export default {
     },
 
     toggleAddPlayer() {
-      this.isAdding = !this.isAdding; // Change d'état pour afficher/masquer le formulaire
-      this.resetNewPlayer(); // Réinitialise les champs du nouveau joueur si on annule
-      this.addPlayerError = ''; // Réinitialise l'erreur
+      this.isAdding = !this.isAdding; 
+      this.resetNewPlayer(); 
+      this.addPlayerError = '';
     },
 
     resetNewPlayer() {
@@ -219,7 +249,100 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+
+.navbar {
+  width: 1450px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 30px;
+  background-color: #1f2937; 
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 50px;
+  height: auto;
+  margin-right: 10px;
+  transition: transform 0.3s ease;
+  cursor: pointer;
+}
+
+.logo:hover {
+  transform: scale(1.1);
+}
+
+.site-title {
+  color: #f3f4f6;
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.nav-links ul {
+  list-style-type: none;
+  display: flex;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+}
+
+.nav-links li {
+  display: inline-block;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #f3f4f6;
+  font-size: 1rem;
+  font-weight: 500;
+  padding: 8px 15px;
+  border-radius: 5px;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.nav-links a:hover {
+  background-color: #374151;
+  transform: translateY(-2px);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-top: 200px; 
+  color: #1f2937;
+  padding: 20px;
+}
+
+h2 {
+  font-size: 2.5rem;
+  margin: 0;
+  font-weight: bold;
+  color: #111827;
+  letter-spacing: 1px;
+  margin-bottom: 15px;
+}
+
+p {
+  font-size: 1.2rem;
+  color: #374151;
+  max-width: 600px;
+  line-height: 1.6;
+}
+
+
 .card-container {
   text-align: center;
   overflow: hidden;
@@ -306,13 +429,47 @@ export default {
   background-color: #6e7780; 
 }
 
-.card-back input,
-.add-player-form input {
-  width: 80%; 
-  padding: 5px;
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+}
+
+.modal-content input {
+  width: 80%;
+  padding: 10px;
+  margin: 5px 0;
   border: 1px solid #ccc;
   border-radius: 5px;
-  margin-top: 5px; 
+}
+
+.modal-content button {
+  margin-top: 10px;
+  padding: 10px 15px;
+  background-color: #85929e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.modal-content button:hover {
+  background-color: #6e7780;
 }
 
 .notification {
@@ -328,4 +485,5 @@ export default {
   color: red; 
   font-weight: bold;
 }
+
 </style>
