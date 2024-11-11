@@ -11,14 +11,13 @@
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/Players">Player</router-link></li>
           <li><router-link to="/login">Login</router-link></li>
         </ul>
       </nav>
     </header>
 
     <div class="card-container" >
-      <h1>List of the Matchs</h1>
+      <h1>List of your Matchs</h1>
       <div class="cards-wrapper">
         <div class="card" v-for="match in matches" :key="match.match_id">
           <div class="card-inner">

@@ -11,7 +11,6 @@
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/Players">Player</router-link></li>
           <li><router-link to="/login">Login</router-link></li>
         </ul>
       </nav>
@@ -109,7 +108,7 @@ export default {
     loginUser() {
       const logIndex = this.logs.indexOf(this.log);
       if (logIndex !== -1 && this.psswds[logIndex] === this.pssw) {
-        this.successMessage = 'Connexion réussie ! Redirection...';
+        this.successMessage = 'Connection successful ! Redirection...';
         this.errorMessage = '';
         setTimeout(() => {
           this.$router.push('/Team');

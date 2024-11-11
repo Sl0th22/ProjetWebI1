@@ -11,7 +11,6 @@
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/Players">Player</router-link></li>
           <li><router-link to="/login">Login</router-link></li>
         </ul>
       </nav>
@@ -256,17 +255,31 @@ export default {
   },
   computed: {
     sportsTypes() {
-      return [...new Set(this.Toornament.map(tournoi => tournoi.type))];
-    },
-    filteredTournaments() {
-      if (!this.selectedSport) {
-        return this.Toornament;
+        const types = this.Toornament.map(tournoi => tournoi.type); 
+        const distinct = [];
+        for (let i = 0; i < types.length; i++) {
+          let isDuplicate = false;
+          for (let j = 0; j < distinct.length; j++) {
+            if (types[i] === distinct[j]) {
+              isDuplicate = true;
+              break;
+            }
+          }
+          if (!isDuplicate) {
+            distinct.push(types[i]);
+          }
+        }
+        return distinct;
+      },
+      filteredTournaments() {
+        if (!this.selectedSport) {
+          return this.Toornament;
+        }
+        return this.Toornament.filter(
+          tournoi => tournoi.type === this.selectedSport
+        );
       }
-      return this.Toornament.filter(
-        tournoi => tournoi.type === this.selectedSport
-      );
-    }
-  },
+    },
   methods: {
     filter(sport) {
       this.selectedSport = sport;
