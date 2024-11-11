@@ -109,7 +109,7 @@ export default {
     loginUser() {
       const logIndex = this.logs.indexOf(this.log);
       if (logIndex !== -1 && this.psswds[logIndex] === this.pssw) {
-        this.successMessage = 'Connexion réussie ! Redirection...';
+        this.successMessage = 'Connection successful ! Redirection...';
         this.errorMessage = '';
         setTimeout(() => {
           this.$router.push('/Team');

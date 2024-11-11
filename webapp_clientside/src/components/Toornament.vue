@@ -256,17 +256,31 @@ export default {
   },
   computed: {
     sportsTypes() {
-      return [...new Set(this.Toornament.map(tournoi => tournoi.type))];
-    },
-    filteredTournaments() {
-      if (!this.selectedSport) {
-        return this.Toornament;
+        const types = this.Toornament.map(tournoi => tournoi.type); 
+        const distinct = [];
+        for (let i = 0; i < types.length; i++) {
+          let isDuplicate = false;
+          for (let j = 0; j < distinct.length; j++) {
+            if (types[i] === distinct[j]) {
+              isDuplicate = true;
+              break;
+            }
+          }
+          if (!isDuplicate) {
+            distinct.push(types[i]);
+          }
+        }
+        return distinct;
+      },
+      filteredTournaments() {
+        if (!this.selectedSport) {
+          return this.Toornament;
+        }
+        return this.Toornament.filter(
+          tournoi => tournoi.type === this.selectedSport
+        );
       }
-      return this.Toornament.filter(
-        tournoi => tournoi.type === this.selectedSport
-      );
-    }
-  },
+    },
   methods: {
     filter(sport) {
       this.selectedSport = sport;
