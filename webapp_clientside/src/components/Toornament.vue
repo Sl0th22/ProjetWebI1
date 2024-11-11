@@ -11,7 +11,6 @@
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/Players">Player</router-link></li>
           <li><router-link to="/login">Login</router-link></li>
         </ul>
       </nav>
