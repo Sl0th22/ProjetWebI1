@@ -46,6 +46,8 @@ app.use('/api/players', playerRoutes);
 const belongRoutes = require('./controllers/belongapi.route'); 
 app.use('/api/belong', belongRoutes);
 
+const matchRoutes = require('./controllers/matchapi.route');
+app.use('/api/matches', matchRoutes);
 
 app.get('/test', (req, res) => {
   db.query('SELECT 1', (err, results) => {

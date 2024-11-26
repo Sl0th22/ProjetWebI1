@@ -22,13 +22,13 @@
         <div class="card" v-for="match in matches" :key="match.match_id">
           <div class="card-inner">
             <div class="card-front">
-              <h2>{{ match.team1 }} <strong>VS</strong> {{ match.team2 }}</h2>
+              <h2>{{ match.team1_name }} <strong>VS</strong> {{ match.team2_name }}</h2>
             </div>
             <div class="card-back">
-              <p><strong>Date :</strong> {{ match.match_date }}</p>
-              <p><strong>Tournament ID :</strong> {{ match.tournament_id }}</p>
-              <p><strong>Score {{ match.team1 }} :</strong> {{ match.score_team1 }}</p>
-              <p><strong>Score {{ match.team2 }} :</strong> {{ match.score_team2 }}</p>
+              <p><strong>Toornament Name :</strong> {{ match.toornament_name }}</p>
+              <p><strong>Date :</strong> {{ formatDate(match.matchs_date) }}</p>
+              <p><strong>Score {{ match.team1_name }} :</strong> {{ match.matchs_score1 }}</p>
+              <p><strong>Score {{ match.team2_name}} :</strong> {{ match.matchs_score2 }}</p>
             </div>
           </div>
         </div>
@@ -38,52 +38,35 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
-      matches: [
-        {
-          match_id: 'M001',
-          team1: 'Le 129',
-          team2: 'Papaya Eater',
-          match_date: '2024-10-20',
-          score_team1: 2,
-          score_team2: 3,
-          tournament_id: 'T001'
-        },
-        {
-          match_id: 'M002',
-          team1: 'Burito FC',
-          team2: 'Datebayo',
-          match_date: '2024-11-15',
-          score_team1: 1,
-          score_team2: 1,
-          tournament_id: 'T002'
-        },
-        {
-          match_id: 'M003',
-          team1: 'Cygogne des îles',
-          team2: 'Oeil de pigeon',
-          match_date: '2024-12-05',
-          score_team1: 4,
-          score_team2: 2,
-          tournament_id: 'T003'
-        },
-        {
-            match_id: 'M004',
-            team1 : 'Le Tigre dormant',
-            team2 : 'La Tortue mangeuse de chats',
-            match_date: '2024-05-05',
-            score_team1: 1,
-            score_team2: 0,
-            tournament_id: 'T001'
-        },
-        
-      ]
+      matches: []
     };
-  }
+  },
+  methods: {
+    async fetchMatch() {
+      try {
+        const response = await axios.get("http://localhost:3000/api/matches");
+        this.matches = response.data;
+        console.log("Matchs chargés :", this.matches);
+      } catch (error) {
+        console.error("Erreur lors du chargement des matchs :", error);
+      }
+    },
+
+  formatDate(dateString) { // Function to format the date to cut the time
+  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+}},
+  async mounted() {
+  await this.fetchMatch();
+}
 };
 </script>
+
 
 <style scoped>
 
