@@ -16,10 +16,10 @@
       </nav>
     </header>
 
-    <div class="card-container" >
-      <h1>List of your Matchs</h1>
+    <div class="card-container">
+      <h1>List of your Precedent Matches</h1>
       <div class="cards-wrapper">
-        <div class="card" v-for="match in matches" :key="match.match_id">
+        <div class="card" v-for="match in matchesWithScores" :key="match.matchs_id">
           <div class="card-inner">
             <div class="card-front">
               <h2>{{ match.team1_name }} <strong>VS</strong> {{ match.team2_name }}</h2>
@@ -33,9 +33,26 @@
           </div>
         </div>
       </div>
+
+      <h1>List of your Future Matches</h1>
+      <div class="cards-wrapper">
+        <div class="card" v-for="match in matchesWithoutScores" :key="match.matchs_id">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2>{{ match.team1_name }} <strong>VS</strong> {{ match.team2_name }}</h2>
+            </div>
+            <div class="card-back">
+              <p><strong>Toornament Name :</strong> {{ match.toornament_name }}</p>
+              <p><strong>Date :</strong> {{ formatDate(match.matchs_date) }}</p>
+              <p>Still need to play</p>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
+
 
 <script>
 import axios from "axios";
@@ -43,29 +60,36 @@ import axios from "axios";
 export default {
   data() {
     return {
-      matches: []
+      matchesWithScores: [],
+      matchesWithoutScores: []
     };
   },
   methods: {
     async fetchMatch() {
       try {
         const response = await axios.get("http://localhost:3000/api/matches");
-        this.matches = response.data;
-        console.log("Matchs chargés :", this.matches);
+        const { matchesWithScores, matchesWithoutScores } = response.data;
+        this.matchesWithScores = matchesWithScores;
+        this.matchesWithoutScores = matchesWithoutScores;
+        console.log("Matches loaded:", {
+          matchesWithScores: this.matchesWithScores,
+          matchesWithoutScores: this.matchesWithoutScores,
+        });
       } catch (error) {
-        console.error("Erreur lors du chargement des matchs :", error);
+        console.error("Error loading matches:", error);
       }
     },
-
-  formatDate(dateString) { // Function to format the date to cut the time
-  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
-  return new Date(dateString).toLocaleDateString(undefined, options);
-}},
+    formatDate(dateString) {
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+  },
   async mounted() {
-  await this.fetchMatch();
-}
+    await this.fetchMatch();
+  },
 };
 </script>
+
 
 
 <style scoped>

@@ -53,8 +53,8 @@ CREATE TABLE Matchs(
    matchs_id INT AUTO_INCREMENT,
    toornament_id INT NOT NULL,
    matchs_date DATE NOT NULL,
-   matchs_score1 INT NOT NULL,
-   matchs_score2 INT NOT NULL,
+   matchs_score1 VARCHAR(50) DEFAULT '/',
+   matchs_score2 VARCHAR(50) DEFAULT '/',
    team1_id INT NOT NULL,
    team2_id INT NOT NULL,
    PRIMARY KEY(matchs_id),
@@ -127,26 +127,30 @@ VALUES
 -- Insertion des matchs avec équipes originales
 INSERT INTO Matchs (matchs_date,toornament_id, matchs_score1, matchs_score2, team1_id, team2_id)
 VALUES 
-('2024-06-01', 1, 3, 1, 1, 2),  -- Lions vs Tigers dans Summer Championship
-('2024-06-01', 1, 1, 3, 2, 1),  -- Tigers vs Lions dans Summer Championship (inverse)
-('2024-06-02', 1, 2, 2, 3, 4),  -- Bears vs Wolves dans Summer Championship
-('2024-06-02', 1, 2, 2, 4, 3),  -- Wolves vs Bears dans Summer Championship (inverse)
-('2024-12-01', 2, 1, 0, 5, 1),  -- Eagles vs Lions dans Winter Cup
-('2024-12-01', 2, 0, 1, 1, 5),  -- Lions vs Eagles dans Winter Cup (inverse)
-('2024-12-05', 2, 4, 2, 2, 3),  -- Tigers vs Bears dans Winter Cup
-('2024-12-05', 2, 2, 4, 3, 2),  -- Bears vs Tigers dans Winter Cup (inverse)
-('2024-03-15', 3, 2, 3, 4, 5),  -- Wolves vs Eagles dans Spring Clash
-('2024-03-15', 3, 3, 2, 5, 4),  -- Eagles vs Wolves dans Spring Clash (inverse)
-('2024-09-10', 4, 0, 2, 6, 7),  -- Panthers vs Sharks dans Autumn Invitational
-('2024-09-10', 4, 2, 0, 7, 6),  -- Sharks vs Panthers dans Autumn Invitational (inverse)
-('2024-08-05', 5, 3, 3, 8, 9),  -- Hawks vs Dragons dans Global Tournament
-('2024-08-05', 5, 3, 3, 9, 8),  -- Dragons vs Hawks dans Global Tournament (inverse)
-('2024-11-15', 6, 5, 1, 10, 1), -- Cobras vs Lions dans World Cup
-('2024-11-15', 6, 1, 5, 1, 10), -- Lions vs Cobras dans World Cup (inverse)
-('2024-10-01', 9, 4, 4, 5, 9),  -- Eagles vs Dragons dans Dragon’s Challenge
-('2024-10-01', 9, 4, 4, 9, 5),  -- Dragons vs Eagles dans Dragon’s Challenge (inverse)
-('2024-07-20', 10, 2, 1, 7, 3), -- Sharks vs Bears dans Desert Duel
-('2024-07-20', 10, 1, 2, 3, 7); -- Bears vs Sharks dans Desert Duel (inverse)
+('2024-06-01', 1, "3", "1", 1, 2),  -- Lions vs Tigers dans Summer Championship
+('2024-06-01', 1, "1", "3", 2, 1),  -- Tigers vs Lions dans Summer Championship (inverse)
+('2024-06-02', 1, "2", "2", 3, 4),  -- Bears vs Wolves dans Summer Championship
+('2024-06-02', 1, "2", "2", 4, 3),  -- Wolves vs Bears dans Summer Championship (inverse)
+('2024-12-01', 2, "1", "0", 5, 1),  -- Eagles vs Lions dans Winter Cup
+('2024-12-01', 2, "0", "1", 1, 5),  -- Lions vs Eagles dans Winter Cup (inverse)
+('2024-12-05', 2, "4", "2", 2, 3),  -- Tigers vs Bears dans Winter Cup
+('2024-12-05', 2, "2", "4", 3, 2),  -- Bears vs Tigers dans Winter Cup (inverse)
+('2024-03-15', 3, "2", "3", 4, 5),  -- Wolves vs Eagles dans Spring Clash
+('2024-03-15', 3, "3", "2", 5, 4),  -- Eagles vs Wolves dans Spring Clash (inverse)
+('2024-09-10', 4, "0", "2", 6, 7),  -- Panthers vs Sharks dans Autumn Invitational
+('2024-09-10', 4, "2", "0", 7, 6),  -- Sharks vs Panthers dans Autumn Invitational (inverse)
+('2024-08-05', 5, "3", "3", 8, 9),  -- Hawks vs Dragons dans Global Tournament
+('2024-08-05', 5, "3", "3", 9, 8);  -- Dragons vs Hawks dans Global Tournament (inverse)
+
+-- Insertion des matchs à venir
+INSERT INTO Matchs (matchs_date,toornament_id, team1_id, team2_id)
+VALUES 
+('2024-11-15', 6, 10, 1), -- Cobras vs Lions dans World Cup
+('2024-11-15', 6, 1, 10), -- Lions vs Cobras dans World Cup (inverse)
+('2024-10-01', 9, 5, 9),  -- Eagles vs Dragons dans Dragon’s Challenge
+('2024-10-01', 9, 9, 5),  -- Dragons vs Eagles dans Dragon’s Challenge (inverse)
+('2024-07-20', 10, 7, 3), -- Sharks vs Bears dans Desert Duel
+('2024-07-20', 10, 3, 7); -- Bears vs Sharks dans Desert Duel (inverse)
 
 -- Insertion des appartenances des joueurs aux équipes
 INSERT INTO Belong (team_id, player_id)
