@@ -15,9 +15,11 @@
         </ul>
       </nav>
     </header>
+    <br>
+
     <div>
       <nav>
-        <ul><br>
+        <ul>
           <li v-if="connected === 'admin'">
             <button class="add" @click="showAddModal = true">Add Tournament</button>
           </li>
@@ -33,42 +35,23 @@
         </option>
       </select>
     </div>
-<br>
+    <br />
     <div class="tournament-list">
       <button @click="switchconnect">Connected: {{ connected }}</button>
       <hr />
-      <div v-for="tournoi in filteredTournaments" :key="tournoi.tournament_id + connected" class="tournament-item">
+      <div v-for="tournament in filteredTournaments" :key="tournament.toornament_id" class="tournament-item">
         <div class="title-container">
-          <h2>{{ tournoi.nom }}</h2>
-          <button v-if="connected === 'admin'" class="delT" @click="deleteT(tournoi)">X</button>
+          <h2>{{ tournament.toornament_name }}</h2>
+          <button v-if="connected === 'admin'" class="delT" @click="deleteTournament(tournament.toornament_id)">X</button>
         </div>
 
-        <p>Start date: {{ tournoi.dateS }}</p>
-        <p>End date: {{ tournoi.dateE }}</p>
-        <p>Number of places: {{ tournoi.place }} / {{ tournoi.maxEquipes }}</p>
-        <p>Type: {{ tournoi.type }}</p>
+        <p>Start date: {{ formatDate(tournament.toornament_start_date) }}</p>
+        <p>End date: {{ formatDate(tournament.toornament_end_date) }}</p>
+        <p>Location: {{ tournament.toornament_location }}</p>
 
         <div v-if="connected === 'user'">
-          <button v-if="tournoi.place >= tournoi.maxEquipes" disabled>Complete</button>
-          <button v-else @click="openTeamSelection(tournoi)">Register</button>
+          <button @click="openTeamSelection(tournament)">Register</button>
         </div>
-
-        <button @click="toggleMatchesVisibility(tournoi.tournament_id)" class="btn-toggle-matches">
-          {{ matchesVisibility[tournoi.tournament_id] ? 'Hide Matches' : 'Show Matches' }}
-        </button>
-
-        <div class="matches-section" v-if="matchesVisibility[tournoi.tournament_id]">
-          <h3>Matchs for {{ tournoi.nom }}</h3>
-          <div v-for="match in getMatchesForTournament(tournoi.tournament_id)" :key="match.match_id" class="match-item">
-            <p>
-              <strong>{{ match.team1 }}</strong> vs <strong>{{ match.team2 }}</strong> le {{ match.match_date }}
-            </p>
-            <p>
-              Score: {{ match.score_team1 }} - {{ match.score_team2 }}
-            </p>
-          </div>
-        </div>
-
         <hr />
       </div>
     </div>
@@ -93,17 +76,11 @@
       <div class="modal-content">
         <h3>Add a Tournament</h3>
         <form @submit.prevent="addTournament" class="form-container">
-          <input v-model="newTournament.nom" placeholder="Tournament Name" required />
-          <input v-model="newTournament.dateS" type="date" required />
-          <input v-model="newTournament.dateE" type="date" required />
-          <input v-model.number="newTournament.place" type="number" min="0" placeholder="Current Teams" required />
-          <input v-model.number="newTournament.maxEquipes" type="number" min="1" placeholder="Max Teams" required />
-          <input list="sportsList" v-model="newTournament.type" placeholder="Enter or select a sport" required />
-          <datalist id="sportsList">
-            <option v-for="sport in sportsTypes" :key="sport" :value="sport">
-              {{ sport }}
-            </option>
-          </datalist>
+          <input v-model="newTournament.toornament_name" placeholder="Tournament Name" required />
+          <input v-model="newTournament.toornament_location" placeholder="Location" required />
+          <input v-model="newTournament.toornament_start_date" type="date" required />
+          <input v-model="newTournament.toornament_end_date" type="date" required />
+          <input type="email" v-model="newTournament.toornament_mail" placeholder="Email" required />
           <button type="submit">Add</button>
           <button @click="showAddModal = false">Cancel</button>
         </form>
@@ -113,236 +90,96 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
-      Toornament: [
-        {
-          tournament_id: 'T001',
-          nom: "Championnat des Étoiles",
-          dateS: "2024-11-01",
-          dateE: "2024-11-10",
-          place: 16,
-          maxEquipes: 32,
-          type: "Volley-ball"
-        },
-        {
-          tournament_id: 'T002',
-          nom: "Coupe d'Hiver",
-          dateS: "2024-12-05",
-          dateE: "2024-12-20",
-          place: 8,
-          maxEquipes: 16,
-          type: "Football"
-        },
-        {
-          tournament_id: 'T003',
-          nom: "Tournoi des Champions",
-          dateS: "2025-01-15",
-          dateE: "2025-01-30",
-          place: 10,
-          maxEquipes: 10,
-          type: "Basket-ball"
-        },
-        {
-          tournament_id: 'T004',
-          nom: "Compétition Printanière",
-          dateS: "2025-03-10",
-          dateE: "2025-03-15",
-          place: 20,
-          maxEquipes: 24,
-          type: "Tennis de table"
-        },
-        {
-          tournament_id: 'T005',
-          nom: "Open International",
-          dateS: "2025-04-05",
-          dateE: "2025-04-20",
-          place: 40,
-          maxEquipes: 64,
-          type: "Football"
-        }
-      ],
-      matches: [
-        {
-          match_id: 'M001',
-          team1: 'Le 129',
-          team2: 'Papaya Eater',
-          match_date: '2024-10-20',
-          score_team1: 2,
-          score_team2: 3,
-          tournament_id: 'T001'
-        },
-        {
-          match_id: 'M002',
-          team1: 'Burito FC',
-          team2: 'Datebayo',
-          match_date: '2024-11-15',
-          score_team1: 1,
-          score_team2: 1,
-          tournament_id: 'T002'
-        },
-        {
-          match_id: 'M003',
-          team1: 'Cygogne des îles',
-          team2: 'Oeil de pigeon',
-          match_date: '2024-12-05',
-          score_team1: 4,
-          score_team2: 2,
-          tournament_id: 'T003'
-        },
-        {
-          match_id: 'M004',
-          team1: 'Le Tigre dormant',
-          team2: 'La Tortue mangeuse de chats',
-          match_date: '2024-05-05',
-          score_team1: 1,
-          score_team2: 0,
-          tournament_id: 'T001'
-        },
-        {
-          match_id: 'M005',
-          team1: 'Le Tigre dormant',
-          team2: 'La Tortue mangeuse de chats',
-          match_date: '2024-05-05',
-          score_team1: 1,
-          score_team2: 0,
-          tournament_id: 'T001'
-        },
-        {
-          match_id: 'M006',
-          team1: 'Le Tigre dormant',
-          team2: 'La Tortue mangeuse de chats',
-          match_date: '2024-05-05',
-          score_team1: 1,
-          score_team2: 0,
-          tournament_id: 'T004'
-        },
-        {
-          match_id: 'M007',
-          team1: 'Le Tigre dormant',
-          team2: 'La Tortue mangeuse de chats',
-          match_date: '2024-05-05',
-          score_team1: 1,
-          score_team2: 0,
-          tournament_id: 'T005'
-        },
-      ],
+      tournaments: [],
+      newTournament: {
+        toornament_name: "",
+        toornament_location: "",
+        toornament_start_date: "",
+        toornament_end_date: "",
+        toornament_mail: "",
+      },
       selectedSport: "",
       connected: "visitor",
       showAddModal: false,
-      newTournament: {
-        tournament_id: "",
-        nom: "",
-        dateS: "",
-        dateE: "",
-        place: 0,
-        maxEquipes: 1,
-        type: ""
-      },
-      matchesVisibility: {},
-      teams: [
-        { team_id: 'Team001', name: 'Les Lions' },
-        { team_id: 'Team002', name: 'Les Tigres' },
-        { team_id: 'Team003', name: 'Les Aigles' },
-        { team_id: 'Team004', name: 'Les Dragons' },
-        { team_id: 'Team005', name: 'Les Phoenix' },
-      ],
       showTeamModal: false,
-      selectedTeam: '',
+      teams: [
+        { team_id: "Team001", name: "Les Lions" },
+        { team_id: "Team002", name: "Les Tigres" },
+      ],
+      selectedTeam: "",
       selectedTournament: null,
     };
   },
   computed: {
     sportsTypes() {
-        const types = this.Toornament.map(tournoi => tournoi.type); 
-        const distinct = [];
-        for (let i = 0; i < types.length; i++) {
-          let isDuplicate = false;
-          for (let j = 0; j < distinct.length; j++) {
-            if (types[i] === distinct[j]) {
-              isDuplicate = true;
-              break;
-            }
-          }
-          if (!isDuplicate) {
-            distinct.push(types[i]);
-          }
-        }
-        return distinct;
-      },
-      filteredTournaments() {
-        if (!this.selectedSport) {
-          return this.Toornament;
-        }
-        return this.Toornament.filter(
-          tournoi => tournoi.type === this.selectedSport
-        );
+      return [...new Set(this.tournaments.map((t) => t.toornament_location))];
+    },
+    filteredTournaments() {
+      if (!this.selectedSport) {
+        return this.tournaments;
+      }
+      return this.tournaments.filter((t) => t.toornament_location === this.selectedSport);
+    },
+  },
+  methods: {
+    async fetchTournaments() {
+      try {
+        const response = await axios.get("http://localhost:3000/api/toornament");
+        this.tournaments = response.data;
+      } catch (error) {
+        console.error("Erreur lors de la récupération des tournois:", error.message);
       }
     },
-  methods: {
-    filter(sport) {
-      this.selectedSport = sport;
+    async addTournament() {
+      try {
+        await axios.post("http://localhost:3000/api/toornament", this.newTournament);
+        this.fetchTournaments(); // Refresh the list
+        this.showAddModal = false;
+      } catch (error) {
+        console.error("Erreur lors de l'ajout du tournoi:", error.message);
+      }
+    },
+    async deleteTournament(id) {
+      try {
+        await axios.delete(`http://localhost:3000/api/toornament/${id}`);
+        this.fetchTournaments(); // Refresh the list
+      } catch (error) {
+        console.error("Erreur lors de la suppression du tournoi:", error.message);
+      }
     },
     switchconnect() {
-      const connectionLevels = ["visitor", "user", "admin"];
-      const currentIndex = connectionLevels.indexOf(this.connected);
-      this.connected = connectionLevels[(currentIndex + 1) % connectionLevels.length];
+      const levels = ["visitor", "user", "admin"];
+      this.connected = levels[(levels.indexOf(this.connected) + 1) % levels.length];
     },
-    deleteT(tournoi) {
-      this.Toornament = this.Toornament.filter(t => t !== tournoi);
-    },
-    addTournament() {
-      this.Toornament.push({ ...this.newTournament });
-      this.resetNewTournament();
-      this.showAddModal = false;
-    },
-    resetNewTournament() {
-      this.newTournament = {
-        tournament_id: "",
-        nom: "",
-        dateS: "",
-        dateE: "",
-        place: 0,
-        maxEquipes: 1,
-        type: ""
-      };
-    },
-    getMatchesForTournament(tournament_id) {
-      return this.matches.filter(
-        match => match.tournament_id === tournament_id
-      );
-    },
-    toggleMatchesVisibility(tournament_id) {
-      this.$set(this.matchesVisibility, tournament_id, !this.matchesVisibility[tournament_id]);
-    },
-    openTeamSelection(tournoi) {
-      this.selectedTournament = tournoi;
+    openTeamSelection(tournament) {
+      this.selectedTournament = tournament;
       this.showTeamModal = true;
     },
     closeTeamModal() {
       this.showTeamModal = false;
-      this.selectedTeam = '';
+      this.selectedTeam = "";
       this.selectedTournament = null;
     },
-    register(tournoi) {
-      if (!this.selectedTeam) {
-        alert('Please select a team.');
-        return;
-      }
-      if (tournoi.place < tournoi.maxEquipes) {
-        tournoi.place++;
-        alert(`You have registered for the ${tournoi.nom} tournament with the team ${this.getTeamName(this.selectedTeam)}!`);
-        this.closeTeamModal();
-      } else {
-        alert("This tournament is full.");
-      }
+    register() {
+      alert("Team registered!");
+      this.closeTeamModal();
     },
-    getTeamName(team_id) {
-      const team = this.teams.find(team => team.team_id === team_id);
-      return team ? team.name : '';
+    filter(sport) {
+      this.selectedSport = sport;
     },
-  }
+    formatDate(dateString) {
+      const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    }
+  },
+  mounted() {
+    this.fetchTournaments();
+  },
 };
 </script>
 
