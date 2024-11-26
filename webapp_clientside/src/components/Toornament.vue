@@ -15,7 +15,7 @@
         </ul>
       </nav>
     </header>
-    <br>
+    <br />
 
     <div>
       <nav>
@@ -29,7 +29,7 @@
 
     <div class="filter-container">
       <select id="select1" v-model="selectedSport" @change="filter(selectedSport)">
-        <option value="">All the sports</option>
+        <option value="">All the location</option>
         <option v-for="sport in sportsTypes" :key="sport" :value="sport">
           {{ sport }}
         </option>
@@ -59,11 +59,11 @@
     <div v-if="showTeamModal" class="modal">
       <div class="modal-content">
         <h3>Select a Team</h3>
-        <form @submit.prevent="register(selectedTournament)">
+        <form @submit.prevent="registerToTeam(selectedTournament)">
           <select v-model="selectedTeam" required class="team-select">
             <option value="" disabled>Select your team</option>
             <option v-for="team in teams" :key="team.team_id" :value="team.team_id">
-              {{ team.name }}
+              {{ team.team_name }}
             </option>
           </select>
           <button type="submit">Confirm Registration</button>
@@ -107,10 +107,7 @@ export default {
       connected: "visitor",
       showAddModal: false,
       showTeamModal: false,
-      teams: [
-        { team_id: "Team001", name: "Les Lions" },
-        { team_id: "Team002", name: "Les Tigres" },
-      ],
+      teams: [], // Chargement des équipes via API
       selectedTeam: "",
       selectedTournament: null,
     };
@@ -132,24 +129,50 @@ export default {
         const response = await axios.get("http://localhost:3000/api/toornament");
         this.tournaments = response.data;
       } catch (error) {
-        console.error("Erreur lors de la récupération des tournois:", error.message);
+        console.error("Error during the recuparation of the data:", error.message);
+      }
+    },
+    async fetchTeams() {
+      try {
+        const response = await axios.get("http://localhost:3000/api/teams");
+        this.teams = response.data;
+      } catch (error) {
+        console.error("Error during the recuparation of teams:", error.message);
       }
     },
     async addTournament() {
       try {
         await axios.post("http://localhost:3000/api/toornament", this.newTournament);
-        this.fetchTournaments(); // Refresh the list
+        this.fetchTournaments(); // Rafraîchir la liste
         this.showAddModal = false;
       } catch (error) {
-        console.error("Erreur lors de l'ajout du tournoi:", error.message);
+        console.error("Error during adding tournament:", error.message);
       }
     },
     async deleteTournament(id) {
       try {
         await axios.delete(`http://localhost:3000/api/toornament/${id}`);
-        this.fetchTournaments(); // Refresh the list
+        this.fetchTournaments(); // Rafraîchir la liste
       } catch (error) {
-        console.error("Erreur lors de la suppression du tournoi:", error.message);
+        console.error("Error during deleting tournament:", error.message);
+      }
+    },
+    async registerToTeam(tournament) {
+      if (!this.selectedTeam) {
+        alert("Please select a team.");
+        return;
+      }
+      try {
+        const payload = {
+          //player_id:1, //  Remplacez par l'ID du joueur connecté
+          team_id: this.selectedTeam,
+        };
+        await axios.post("http://localhost:3000/api/teams/join", payload);
+        alert("Inscription success !");
+        this.closeTeamModal();
+      } catch (error) {
+        console.error("Error while registering:", error.message);
+        alert("Not avalaible yet.");
       }
     },
     switchconnect() {
@@ -158,6 +181,7 @@ export default {
     },
     openTeamSelection(tournament) {
       this.selectedTournament = tournament;
+      this.fetchTeams(); // Charger les équipes disponibles
       this.showTeamModal = true;
     },
     closeTeamModal() {
@@ -165,23 +189,20 @@ export default {
       this.selectedTeam = "";
       this.selectedTournament = null;
     },
-    register() {
-      alert("Team registered!");
-      this.closeTeamModal();
-    },
     filter(sport) {
       this.selectedSport = sport;
     },
     formatDate(dateString) {
-      const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
       return new Date(dateString).toLocaleDateString(undefined, options);
-    }
+    },
   },
   mounted() {
     this.fetchTournaments();
   },
 };
 </script>
+
 
 <style scoped>
 .navbar {

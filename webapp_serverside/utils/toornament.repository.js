@@ -29,7 +29,7 @@ module.exports = {
       );
       return result.affectedRows; // Retourne le nombre de lignes affectées
     } catch (error) {
-      console.error('Erreur lors de la mise à jour du tournoi :', error.message);
+      console.error('Error during updating tournament :', error.message);
       throw error;
     }
   },
@@ -41,21 +41,21 @@ module.exports = {
 
       // Supprimer les enregistrements liés dans la table Play
       const [deletePlay] = await connection.query('DELETE FROM Play WHERE toornament_id = ?', [id]);
-      console.log(`Liens supprimés dans Play : ${deletePlay.affectedRows}`);
+      console.log(`Links removed in Play : ${deletePlay.affectedRows}`);
 
       // Supprimer les enregistrements liés dans la table Matchs
       const [deleteMatches] = await connection.query('DELETE FROM Matchs WHERE toornament_id = ?', [id]);
-      console.log(`Matchs supprimés : ${deleteMatches.affectedRows}`);
+      console.log(`Matchs deleted : ${deleteMatches.affectedRows}`);
 
       // Supprimer le tournoi
       const [deleteTournament] = await connection.query('DELETE FROM Toornament WHERE toornament_id = ?', [id]);
-      console.log(`Tournois supprimés : ${deleteTournament.affectedRows}`);
+      console.log(`Tournament deleted : ${deleteTournament.affectedRows}`);
 
       await connection.commit(); // Valider les suppressions
       return deleteTournament.affectedRows;
     } catch (error) {
       await connection.rollback(); // Annuler en cas d'erreur
-      console.error('Erreur lors de la suppression du tournoi :', error.message);
+      console.error('Error during deleting tournament :', error.message);
       throw error;
     } finally {
       connection.release(); // Libérer la connexion
