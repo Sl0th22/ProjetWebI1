@@ -16,6 +16,10 @@
       </nav>
     </header>
 
+    <div class="connection-switch">
+      <button @click="switchconnect">Connected: {{ connected }}</button>
+    </div>
+
     <div class="card-container">
       <h1>List of your Precedent Matches</h1>
       <div class="cards-wrapper">
@@ -23,9 +27,11 @@
           <div class="card-inner">
             <div class="card-front">
               <h2>{{ match.team1_name }} <strong>VS</strong> {{ match.team2_name }}</h2>
+              <p> {{ match.toornament_name }}</p>
+
             </div>
             <div class="card-back">
-              <p><strong>Toornament Name :</strong> {{ match.toornament_name }}</p>
+              <button v-if="connected === 'admin'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
               <p><strong>Date :</strong> {{ formatDate(match.matchs_date) }}</p>
               <p><strong>Score {{ match.team1_name }} :</strong> {{ match.matchs_score1 }}</p>
               <p><strong>Score {{ match.team2_name}} :</strong> {{ match.matchs_score2 }}</p>
@@ -33,18 +39,29 @@
           </div>
         </div>
       </div>
-
       <h1>List of your Future Matches</h1>
       <div class="cards-wrapper">
         <div class="card" v-for="match in matchesWithoutScores" :key="match.matchs_id">
           <div class="card-inner">
             <div class="card-front">
               <h2>{{ match.team1_name }} <strong>VS</strong> {{ match.team2_name }}</h2>
+              <p> {{ match.toornament_name }}</p>
+
             </div>
             <div class="card-back">
-              <p><strong>Toornament Name :</strong> {{ match.toornament_name }}</p>
+              <button v-if="connected === 'admin'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
               <p><strong>Date :</strong> {{ formatDate(match.matchs_date) }}</p>
               <p>Still need to play</p>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="connected === 'admin'" class="card add-card no-flip">
+          <div class="card-inner">
+            <div class="card-front">
+              <button class="add-match-button" @click="addMatch">
+                <span class="plus">+</span>
+              </button>
             </div>
           </div>
         </div>
@@ -61,7 +78,8 @@ export default {
   data() {
     return {
       matchesWithScores: [],
-      matchesWithoutScores: []
+      matchesWithoutScores: [],
+      connected: "user", 
     };
   },
   methods: {
@@ -79,9 +97,29 @@ export default {
         console.error("Error loading matches:", error);
       }
     },
+
     formatDate(dateString) {
       const options = { year: "numeric", month: "2-digit", day: "2-digit" };
       return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+
+    switchconnect() {
+      const levels = ["user", "admin"];
+      this.connected = levels[(levels.indexOf(this.connected) + 1) % levels.length];
+    },
+
+    addMatch() {
+      alert("Add a match");
+    },
+
+    async deleteMatch(matchId) {
+      try {
+        await axios.delete(`http://localhost:3000/api/matches/${matchId}`);
+        await this.fetchMatch();
+        alert("Match deleted");
+      } catch (error) {
+        console.error("Error deleting match:", error);
+      }
     },
   },
   async mounted() {
@@ -90,10 +128,7 @@ export default {
 };
 </script>
 
-
-
 <style scoped>
-
 .navbar {
   width: 1450px;
   display: flex;
@@ -247,5 +282,74 @@ p {
 
 .card-back p {
   margin: 5px 0;
+}
+
+/* Carte "ajouter match" */
+.add-card {
+  width: 200px;
+  height: 300px;
+  background-color: #85929e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Empêche la carte d'ajouter un match de se retourner */
+.no-flip .card-inner {
+  transform: none !important;
+  transition: none !important;
+}
+
+.add-match-button {
+  font-size: 24px;
+  background-color: #374151;
+  color: white;
+  border: none;
+  padding: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-match-button:hover {
+  background-color: #1f2937;
+}
+
+.connection-switch {
+  margin-top: 100px;
+  text-align: center;
+}
+
+.connection-switch button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #85929e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.connection-switch button:hover {
+  background-color: #5d6d7e;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  color: #f44336;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.delete-btn:hover {
+  color: #d32f2f;
 }
 </style>
