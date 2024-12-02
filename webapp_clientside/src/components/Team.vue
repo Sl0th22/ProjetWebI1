@@ -4,7 +4,7 @@
     <header class="navbar">
       <div class="navbar-left">
         <img src="@/assets/Sport_tournament.png" alt="Sport Tournament Logo" class="logo" />
-        <h1 class="site-title">The Sport Tournament</h1>
+        <h1 class="site-title">The Sport Toornament</h1>
       </div>
       <nav class="nav-links">
         <ul>
@@ -32,7 +32,7 @@
           class="team-card"
           v-for="team in teams"
           :key="team.team_id"
-          :to="{ name: 'Players', params: { id: team.team_id } }">
+          :to="{ name: 'Players', params: { team_id: team.team_id } }">
           <div class="team-card-inner">
             <div class="team-card-front">
               <h2>{{ team.team_name }}</h2>
@@ -43,9 +43,9 @@
               <p><strong>Date of creation :</strong> {{ formatDate(team.team_creation_date) }}</p>
               <p><strong>Localisation :</strong> {{ team.team_location }}</p>
               <p><strong>Number of players :</strong> {{ team.team_number }}</p>
-            </div>
-          </div>
-        </router-link>
+    </div>
+  </div>
+</router-link>
       </div>
     </div>
 

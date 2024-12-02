@@ -39,4 +39,41 @@ router.post('/', async (req, res) => {
     }
   });
   
+  router.get('/team/:team_id', async (req, res) => {
+    try {
+      const { team_id } = req.params;
+      console.log("team_id", team_id);
+      if (!team_id) {
+        return res.status(400).json({ message: "team_id is required" });
+      }
+        const players = await playerRepository.getPlayersByTeam(team_id);
+      if (!players || players.length === 0) {
+        return res.status(404).json({ message: "No players found for this team" });
+      }
+  
+      res.json(players); 
+    } catch (error) {
+      console.error("Error while fetching players (playerapi.route.js):", error.message);
+      res.status(500).json({ message: "Server error" });
+    }
+  });
+
+  router.put('/:player_id', async (req, res) => {
+    const playerId = req.params.player_id;
+    const { player_mail, player_age, player_phone_number } = req.body;
+  
+    try {
+      const updatedPlayer = await playerRepository.updatePlayer(playerId, { player_mail, player_age, player_phone_number });
+      console.log("updatedPlayer", updatedPlayer);
+      if (updatedPlayer) {
+        res.status(200).json({ message: 'Player updated successfully' });
+      } else {
+        res.status(404).json({ message: 'Player not found apiroute' });
+      }
+    } catch (error) {
+      console.error("Error updating player:(apiroute.js) : ", error.message);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+  
   module.exports = router;

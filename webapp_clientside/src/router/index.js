@@ -19,7 +19,7 @@ export default new Router({
 
 
     {
-      path: '/Players',
+      path: '/Players/:team_id',
       name: 'Players',
       component: Players
     },
