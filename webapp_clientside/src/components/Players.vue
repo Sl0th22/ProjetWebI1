@@ -28,13 +28,17 @@
 
       <!-- Modal for deleting a player -->
       <div v-if="isDeleting" class="modal">
-        <div class="modal-content">
-          <h3>Delete Player</h3>
-          <input type="text" v-model="id" placeholder="ID of the player" />
-          <button @click="deletePlayer">Confirm Delete</button>
-          <button @click="isDeleting = false">Cancel</button>
-        </div>
-      </div>
+  <div class="modal-content">
+    <h3>Delete Player from Team</h3>
+    <select v-model="selectedPlayerId">
+      <option v-for="player in players" :value="player.player_id" :key="player.player_id">
+        {{ player.player_first_name }} {{ player.player_last_name }}
+      </option>
+    </select>
+    <button @click="deletePlayer">Confirm Delete</button>
+    <button @click="isDeleting = false">Cancel</button>
+  </div>
+</div>
 
       <!-- Modal for adding a new player -->
       <div v-if="isAdding" class="modal">
@@ -106,6 +110,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      selectedPlayerId: null,
       id: '',
       team_id: null,
       isDeleting: false,
@@ -137,9 +142,6 @@ export default {
       }
     },
 
-
-    // Toggle edit mode for player information
-
     async updatePlayer(player) {
   try {
     const response = await axios.put(`http://localhost:3000/api/players/${player.player_id}`, {
@@ -159,6 +161,8 @@ export default {
   }
 },
 
+
+    // Toggle edit mode for player information
 Edit() {
   if (this.isEditing) {
     let hasErrors = false;
@@ -209,10 +213,10 @@ Edit() {
 
     async fetchTeamName(team_id) {
     try {
-      // Requête vers l'API pour récupérer les informations de l'équipe
+  
       const response = await axios.get(`http://localhost:3000/api/teams/${team_id}`);
       if (response.status === 200 && response.data) {
-        return response.data.team_name; // Assurez-vous que l'API retourne un champ `team_name`
+        return response.data.team_name; 
       } else {
         console.error("No team found with this ID.");
         return null;
@@ -226,7 +230,6 @@ Edit() {
     // Add a new player to the list
     async addPlayer() {
   try {
-    // Ajouter le joueur
     const playerResponse = await axios.post("http://localhost:3000/api/players", {
       first_name: this.newPlayer.player_first_name,
       last_name: this.newPlayer.player_last_name,
@@ -261,14 +264,41 @@ Edit() {
     this.notification.push({ id: Date.now(), text: 'Error adding player or relation.', type: 'error' });
   } finally {
     this.autoDismissNotification();
-    this.isAdding = false; // Fermer la fenêtre de modal
-    this.fetchPlayers(); // Actualiser la liste des joueurs
+    this.isAdding = false;
+    this.fetchPlayers();
   }
 },
     
     // Delete player by ID
-    deletePlayer() {
-      
+    async deletePlayer() {
+      try {
+        const teamName = await this.fetchTeamName(this.team_id);
+
+        if (!teamName || !this.selectedPlayerId) {
+          throw new Error("Team name or player ID is missing.");
+        }
+        console.log("Deleting player from team:", teamName, this.selectedPlayerId);
+        const belongResponse = await axios.delete(`http://localhost:3000/api/belong/${teamName}/${this.selectedPlayerId}`, {});
+
+        if (belongResponse.status === 200) {
+          this.notification.push({
+            id: Date.now(),
+            text: "Player removed from team successfully!",
+            type: "success",
+          });
+        }
+        this.fetchPlayers(); 
+        this.isDeleting = false;
+      } catch (error) {
+        console.error("Error removing player from team:", error);
+        this.notification.push({
+          id: Date.now(),
+          text: "Error removing player from team.",
+          type: "error",
+        });
+      } finally {
+        this.autoDismissNotification();
+      }
     },
 
     // Show delete modal
