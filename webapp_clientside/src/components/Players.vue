@@ -3,7 +3,7 @@
     <header class="navbar">
       <div class="navbar-left">
         <img src="@/assets/Sport_tournament.png" alt="Sport Tournament Logo" class="logo" />
-        <h1 class="site-title">The Sport Tournament</h1>
+        <h1 class="site-title">The Sport Toornament</h1>
       </div>
       <nav class="nav-links">
         <ul>
@@ -15,167 +15,194 @@
         </ul>
       </nav>
     </header>
-  <div class="card-container">
 
-    
-    <h1>List of Players</h1>
+    <div class="card-container">
+      <h1>List of Players</h1>
 
-    <div class="Edit">
-      <button v-on:click="dlt">Delete</button>
-      <button v-on:click="Edit">{{ isEditing ? 'Save' : 'Edit' }}</button>
-      <button v-on:click="toggleAddPlayer">{{ isAdding ? 'Cancel' : 'Add' }}</button>
-    </div>
-
-    <div v-if="isDeleting" class="modal">
-      <div class="modal-content">
-        <h3>Delete Player</h3>
-        <input type="text" v-model="id" placeholder="ID of your player"/>
-        <button @click="deletePlayer">Confirm Delete</button>
-        <button @click="isDeleting = false">Cancel</button>
+      <!-- Buttons for edit, delete, and add player -->
+      <div class="Edit">
+        <button @click="dlt">Delete</button>
+        <button @click="Edit">{{ isEditing ? 'Save' : 'Edit' }}</button>
+        <button @click="toggleAddPlayer">{{ isAdding ? 'Cancel' : 'Add' }}</button>
       </div>
-    </div>
 
-    <div v-if="isAdding" class="modal">
-      <div class="modal-content">
-        <h3>Add New Player</h3>
-        <form @submit.prevent="addPlayer">
-          <input v-model="newPlayer.player_first_name" type="text" placeholder="First Name" required />
-          <input v-model="newPlayer.player_last_name" type="text" placeholder="Last Name" required />
-          <input v-model="newPlayer.player_mail" type="email" placeholder="Email" required />
-          <input v-model="newPlayer.player_age" type="number" placeholder="Age" required />
-          <input v-model="newPlayer.player_phone_number" type="text" placeholder="Phone Number" required />
-          <button type="submit">Add</button>
-          <button @click="isAdding = false">Cancel</button>
-        </form>
-        <div v-if="addPlayerError" class="error">{{ addPlayerError }}</div>
+      <!-- Modal for deleting a player -->
+      <div v-if="isDeleting" class="modal">
+  <div class="modal-content">
+    <h3>Delete Player from Team</h3>
+    <select v-model="selectedPlayerId">
+      <option v-for="player in players" :value="player.player_id" :key="player.player_id">
+        {{ player.player_first_name }} {{ player.player_last_name }}
+      </option>
+    </select>
+    <button @click="deletePlayer">Confirm Delete</button>
+    <button @click="isDeleting = false">Cancel</button>
+  </div>
+</div>
+
+      <!-- Modal for adding a new player -->
+      <div v-if="isAdding" class="modal">
+        <div class="modal-content">
+          <h3>Add New Player</h3>
+          <form @submit.prevent="addPlayer">
+            <input v-model="newPlayer.player_first_name" type="text" placeholder="First Name" required />
+            <input v-model="newPlayer.player_last_name" type="text" placeholder="Last Name" required />
+            <input v-model="newPlayer.player_mail" type="email" placeholder="Email" required />
+            <input v-model="newPlayer.player_age" type="number" placeholder="Age" required />
+            <input v-model="newPlayer.player_phone_number" type="text" placeholder="Phone Number" required />
+            <button type="submit">Add</button>
+            <button @click="isAdding = false">Cancel</button>
+          </form>
+          <div v-if="addPlayerError" class="error">{{ addPlayerError }}</div>
+        </div>
       </div>
-    </div>
 
-    <div class="notification">
-      <div v-if="notification.length > 0">
-        <div v-for="msg in notification" :key="msg.id" :class="msg.type === 'error' ? 'error' : 'success'">{{ msg.text }}</div>
+      <!-- Notifications for success or error messages -->
+      <div class="notification">
+        <div v-if="notification.length > 0">
+          <div v-for="msg in notification" :key="msg.id" :class="msg.type === 'error' ? 'error' : 'success'">{{ msg.text }}</div>
+        </div>
       </div>
-    </div>
 
-    <div class="cards-wrapper">
-      <div class="card" v-for="player in players" :key="player.player_id">
-        <div class="card-inner">
-          <div class="card-front">
-            <h2>{{ player.player_first_name }} {{ player.player_last_name }}</h2>
-          </div>
-          <div class="card-back">
-            <p><strong>ID:</strong> {{ player.player_id }}</p>
-            <p><strong>Email:</strong>
-              <span v-if="isEditing">
-                <input type="text" v-model="player.player_mail" />
-                <span v-if="emailErrors[player.player_id]" class="error">{{ emailErrors[player.player_id] }}</span>
-              </span>
-              <span v-else>{{ player.player_mail }}</span>
-            </p>
-            <p><strong>Age:</strong>
-              <span v-if="isEditing">
-                <input type="number" v-model="player.player_age" min="1" />
-                <span v-if="ageErrors[player.player_id]" class="error">{{ ageErrors[player.player_id] }}</span>
-              </span>
-              <span v-else>{{ player.player_age }}</span>
-            </p>
-            <p><strong>Phone Number:</strong>
-              <span v-if="isEditing">
-                <input type="text" v-model="player.player_phone_number" />
-                <span v-if="phoneErrors[player.player_id]" class="error">{{ phoneErrors[player.player_id] }}</span>
-              </span>
-              <span v-else>{{ player.player_phone_number }}</span>
-            </p>
+      <!-- Cards to display player information -->
+      <div class="cards-wrapper">
+        <div class="card" v-for="player in players" :key="player.player_id">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2>{{ player.player_first_name }} {{ player.player_last_name }}</h2>
+            </div>
+            <div class="card-back">
+              <p><strong>ID:</strong> {{ player.player_id }}</p>
+              <p><strong>Email:</strong>
+                <span v-if="isEditing">
+                  <input type="text" v-model="player.player_mail" />
+                  <span v-if="emailErrors[player.player_id]" class="error">{{ emailErrors[player.player_id] }}</span>
+                </span>
+                <span v-else>{{ player.player_mail }}</span>
+              </p>
+              <p><strong>Age:</strong>
+                <span v-if="isEditing">
+                  <input type="number" v-model="player.player_age" min="1" />
+                  <span v-if="ageErrors[player.player_id]" class="error">{{ ageErrors[player.player_id] }}</span>
+                </span>
+                <span v-else>{{ player.player_age }}</span>
+              </p>
+              <p><strong>Phone Number:</strong>
+                <span v-if="isEditing">
+                  <input type="text" v-model="player.player_phone_number" />
+                  <span v-if="phoneErrors[player.player_id]" class="error">{{ phoneErrors[player.player_id] }}</span>
+                </span>
+                <span v-else>{{ player.player_phone_number }}</span>
+              </p>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-
 </template>
 
-
 <script>
+
+import axios from "axios";
+
+
 export default {
   data() {
     return {
+      selectedPlayerId: null,
+      id: '',
+      team_id: null,
       isDeleting: false,
-      isEditing: false, 
+      isEditing: false,
       isAdding: false,
       notification: [],
       addPlayerError: '',
-      newPlayer: { 
-        player_id: '',
+      newPlayer: {
         player_first_name: '',
         player_last_name: '',
         player_mail: '',
         player_age: null,
         player_phone_number: ''
       },
-      players: [
-        { player_id: 'P001', player_last_name: 'Doe', player_first_name: 'John', player_mail: 'john.doe@example.com', player_age: 28, player_phone_number: '1234567890' },
-        { player_id: 'P002', player_last_name: 'Smith', player_first_name: 'Jane', player_mail: 'jane.smith@example.com', player_age: 24, player_phone_number: '1234567891' },
-        { player_id: 'P003', player_last_name: 'Brown', player_first_name: 'Charlie', player_mail: 'charlie.brown@example.com', player_age: 30, player_phone_number: '1234567892' },
-        { player_id: 'P004', player_last_name: 'Taylor', player_first_name: 'Emma', player_mail: 'emma.taylor@example.com', player_age: 26, player_phone_number: '1234567893' },
-        { player_id: 'P005', player_last_name: 'Johnson', player_first_name: 'Oliver', player_mail: 'oliver.johnson@example.com', player_age: 29, player_phone_number: '1234567894' },
-        { player_id: 'P006', player_last_name: 'Williams', player_first_name: 'Sophia', player_mail: 'sophia.williams@example.com', player_age: 27, player_phone_number: '1234567895' },
-        { player_id: 'P007', player_last_name: 'Jones', player_first_name: 'Liam', player_mail: 'liam.jones@example.com', player_age: 25, player_phone_number: '1234567896' },
-        { player_id: 'P008', player_last_name: 'Garcia', player_first_name: 'Ava', player_mail: 'ava.garcia@example.com', player_age: 31, player_phone_number: '1234567897' },
-        { player_id: 'P009', player_last_name: 'Miller', player_first_name: 'Isabella', player_mail: 'isabella.miller@example.com', player_age: 23, player_phone_number: '1234567898' },
-        { player_id: 'P010', player_last_name: 'Davis', player_first_name: 'Mason', player_mail: 'mason.davis@example.com', player_age: 32, player_phone_number: '1234567899' }
-      ],
-      emailErrors: {}, 
+      players: [],
+      emailErrors: {},
       ageErrors: {},
       phoneErrors: {}
     };
   },
   methods: {
-    Edit() {
-      if (this.isEditing) {
-        this.notification = [];
-        this.emailErrors = {}; 
-        this.ageErrors = {}; 
-        this.phoneErrors = {};
-
-        let hasErrors = false; 
-        this.players.forEach(player => {
-          if (player.player_age < 1) {
-            this.ageErrors[player.player_id] = 'Age must be at least 1.';
-            hasErrors = true;
-          }
-          if (!this.validateEmail(player.player_mail)) {
-            this.emailErrors[player.player_id] = 'Invalid email format.';
-            hasErrors = true;
-          }
-          if (player.player_phone_number.length < 10) {
-            this.phoneErrors[player.player_id] = 'Phone number must be at least 10 digits.';
-            hasErrors = true;
-          }
-        });
-
-        if (!hasErrors) {
-          this.notification.push({ id: Date.now(), text: 'Changes saved successfully!', type: 'success' });
-          this.isEditing = false;
-          this.autoDismissNotification();
-        } else {
-          this.notification.push({ id: Date.now(), text: 'Please correct the errors before saving.', type: 'error' });
-          this.autoDismissNotification();
-        }
-      } else {
-        this.isEditing = true;
+    // Fetch player data from the API
+    async fetchPlayers() {
+      try {
+        const response = await axios.get(`http://localhost:3000/api/players/team/${this.team_id}`); // we go to the route of route.get from the playerapi.route.js
+        this.players = response.data;
+      } catch (error) {
+        console.error("Error when we load the teams : ", error);
       }
     },
 
+    async updatePlayer(player) {
+  try {
+    const response = await axios.put(`http://localhost:3000/api/players/${player.player_id}`, {
+      player_mail: player.player_mail,
+      player_age: player.player_age,
+      player_phone_number: player.player_phone_number
+    });
+    if (response.status === 200) {
+      this.notification.push({ id: Date.now(), text: 'Player updated successfully!', type: 'success' });
+      this.autoDismissNotification();
+      this.isEditing = false;
+    }
+  } catch (error) {
+    console.error("Error updating player:", error);
+    this.notification.push({ id: Date.now(), text: 'Error updating player.', type: 'error' });
+    this.autoDismissNotification();
+  }
+},
+
+
+    // Toggle edit mode for player information
+Edit() {
+  if (this.isEditing) {
+    let hasErrors = false;
+    this.players.forEach(player => {
+      if (player.player_age < 1) {
+        this.ageErrors[player.player_id] = 'Age must be at least 1.';
+        hasErrors = true;
+      }
+      if (!this.validateEmail(player.player_mail)) {
+        this.emailErrors[player.player_id] = 'Invalid email format.';
+        hasErrors = true;
+      }
+      if (player.player_phone_number.length < 10) {
+        this.phoneErrors[player.player_id] = 'Phone number must be at least 10 digits.';
+        hasErrors = true;
+      }
+    });
+    if (!hasErrors) {
+      this.players.forEach(player => {
+        this.updatePlayer(player);
+      });
+    } else {
+      this.notification.push({ id: Date.now(), text: 'Please correct the errors before saving.', type: 'error' });
+      this.autoDismissNotification();
+    }
+  } else {
+    this.isEditing = true;
+  }
+},
+
+    // Toggle add player modal
     toggleAddPlayer() {
-      this.isAdding = !this.isAdding; 
-      this.resetNewPlayer(); 
+      this.isAdding = !this.isAdding;
+      this.resetNewPlayer();
       this.addPlayerError = '';
     },
 
+    // Reset new player fields
     resetNewPlayer() {
       this.newPlayer = {
-        player_id: '',
         player_first_name: '',
         player_last_name: '',
         player_mail: '',
@@ -184,66 +211,118 @@ export default {
       };
     },
 
-    addPlayer() {
-  this.addPlayerError = '';
-  if (!this.newPlayer.player_first_name || !this.newPlayer.player_last_name) {
-    this.addPlayerError = 'First and last names are required.';
-    return;
-  }
-  if (!this.validateEmail(this.newPlayer.player_mail)) {
-    this.addPlayerError = 'Invalid email format.';
-    return;
-  }
-  if (this.newPlayer.player_age < 1) {
-    this.addPlayerError = 'Age must be at least 1.';
-    return;
-  }
-  if (this.newPlayer.player_phone_number.length < 10) {
-    this.addPlayerError = 'Phone number must be at least 10 digits.';
-    return;
-  }
+    async fetchTeamName(team_id) {
+    try {
+  
+      const response = await axios.get(`http://localhost:3000/api/teams/${team_id}`);
+      if (response.status === 200 && response.data) {
+        return response.data.team_name; 
+      } else {
+        console.error("No team found with this ID.");
+        return null;
+      }
+    } catch (error) {
+      console.error("Error fetching team name:", error);
+      return null;
+    }
+  },
 
-  const lastPlayer = this.players[this.players.length - 1];
-  const lastId = lastPlayer ? parseInt(lastPlayer.player_id.slice(1), 10) : 0;
-  this.newPlayer.player_id = `P0${lastId + 1}`; 
+    // Add a new player to the list
+    async addPlayer() {
+  try {
+    const playerResponse = await axios.post("http://localhost:3000/api/players", {
+      first_name: this.newPlayer.player_first_name,
+      last_name: this.newPlayer.player_last_name,
+      email: this.newPlayer.player_mail,
+      age: this.newPlayer.player_age,
+      phone_number: this.newPlayer.player_phone_number
+    });
 
-  this.players.push({ ...this.newPlayer });
+    if (playerResponse.status === 201) {
+      const player = playerResponse.data;
+      console.log("Player added:", player);
+      const teamName = await this.fetchTeamName(this.team_id);
+      console.log("Team name:", teamName);
 
-  this.resetNewPlayer();
-  this.isAdding = false;
-  this.notification.push({ id: Date.now(), text: 'Player added successfully!', type: 'success' });
-  this.autoDismissNotification();
+      if (teamName) {
+        const belongResponse = await axios.post("http://localhost:3000/api/belong", {
+          team_name: teamName,
+          team_captain_firstname: this.newPlayer.player_first_name,
+          team_captain_lastname: this.newPlayer.player_last_name
+        })
+
+
+        if (belongResponse.status === 201) {
+          this.notification.push({ id: Date.now(), text: 'Player and relation added successfully!', type: 'success' });
+        }
+      } else {
+        throw new Error("Team name not found.");
+      }
+    }
+  } catch (error) {
+    console.error("Error adding player or relation:", error);
+    this.notification.push({ id: Date.now(), text: 'Error adding player or relation.', type: 'error' });
+  } finally {
+    this.autoDismissNotification();
+    this.isAdding = false;
+    this.fetchPlayers();
+  }
 },
+    
+    // Delete player by ID
+    async deletePlayer() {
+      try {
+        const teamName = await this.fetchTeamName(this.team_id);
 
+        if (!teamName || !this.selectedPlayerId) {
+          throw new Error("Team name or player ID is missing.");
+        }
+        console.log("Deleting player from team:", teamName, this.selectedPlayerId);
+        const belongResponse = await axios.delete(`http://localhost:3000/api/belong/${teamName}/${this.selectedPlayerId}`, {});
 
-    validateEmail(email) {
-      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      return re.test(String(email).toLowerCase());
+        if (belongResponse.status === 200) {
+          this.notification.push({
+            id: Date.now(),
+            text: "Player removed from team successfully!",
+            type: "success",
+          });
+        }
+        this.fetchPlayers(); 
+        this.isDeleting = false;
+      } catch (error) {
+        console.error("Error removing player from team:", error);
+        this.notification.push({
+          id: Date.now(),
+          text: "Error removing player from team.",
+          type: "error",
+        });
+      } finally {
+        this.autoDismissNotification();
+      }
     },
 
+    // Show delete modal
+    dlt() {
+      this.isDeleting = true;
+    },
+
+    // Auto dismiss notification after a few seconds
     autoDismissNotification() {
       setTimeout(() => {
-        this.notification.pop(); 
-      }, 2000); 
+        this.notification = [];
+      }, 5000);
     },
 
-    dlt(){
-      this.isDeleting = !this.isDeleting;
-
-    },
-
-    deletePlayer() {
-      const playerIndex = this.players.findIndex(player => player.player_id === this.id);
-      if (playerIndex !== -1) {
-        this.players.splice(playerIndex, 1);
-        this.notification.push({ id: Date.now(), text: 'Player deleted successfully!', type: 'success' });
-      } else {
-        this.notification.push({ id: Date.now(), text: 'Player ID not found!', type: 'error' });
-      }
-      this.id = '';
-      this.isDeleting = false; 
-      this.autoDismissNotification(); 
+    // Validate email format
+    validateEmail(email) {
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return emailPattern.test(email);
     }
+  },
+
+  mounted() {
+    this.team_id = this.$route.params.team_id;
+    this.fetchPlayers();
   }
 };
 </script>

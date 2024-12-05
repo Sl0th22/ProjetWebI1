@@ -3,7 +3,7 @@
     <header class="navbar">
       <div class="navbar-left">
         <img src="@/assets/Sport_tournament.png" alt="Sport Tournament Logo" class="logo" />
-        <h1 class="site-title">The Sport Tournament</h1>
+        <h1 class="site-title">The Sport Toornament</h1>
       </div>
       <nav class="nav-links">
         <ul>
@@ -16,19 +16,52 @@
       </nav>
     </header>
 
-    <div class="card-container" >
-      <h1>List of your Matchs</h1>
+    <div class="connection-switch">
+      <button @click="switchconnect">Connected: {{ connected }}</button>
+    </div>
+
+    <div class="card-container">
+      <h1>List of your Precedent Matches</h1>
       <div class="cards-wrapper">
-        <div class="card" v-for="match in matches" :key="match.match_id">
+        <div class="card" v-for="match in matchesWithScores" :key="match.matchs_id">
           <div class="card-inner">
             <div class="card-front">
-              <h2>{{ match.team1 }} <strong>VS</strong> {{ match.team2 }}</h2>
+              <h2>{{ match.team1_name }} <strong>VS</strong> {{ match.team2_name }}</h2>
+              <p> {{ match.toornament_name }}</p>
+
             </div>
             <div class="card-back">
-              <p><strong>Date :</strong> {{ match.match_date }}</p>
-              <p><strong>Tournament ID :</strong> {{ match.tournament_id }}</p>
-              <p><strong>Score {{ match.team1 }} :</strong> {{ match.score_team1 }}</p>
-              <p><strong>Score {{ match.team2 }} :</strong> {{ match.score_team2 }}</p>
+              <button v-if="connected === 'admin'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
+              <p><strong>Date :</strong> {{ formatDate(match.matchs_date) }}</p>
+              <p><strong>Score {{ match.team1_name }} :</strong> {{ match.matchs_score1 }}</p>
+              <p><strong>Score {{ match.team2_name}} :</strong> {{ match.matchs_score2 }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <h1>List of your Future Matches</h1>
+      <div class="cards-wrapper">
+        <div class="card" v-for="match in matchesWithoutScores" :key="match.matchs_id">
+          <div class="card-inner">
+            <div class="card-front">
+              <h2>{{ match.team1_name }} <strong>VS</strong> {{ match.team2_name }}</h2>
+              <p> {{ match.toornament_name }}</p>
+
+            </div>
+            <div class="card-back">
+              <button v-if="connected === 'admin'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
+              <p><strong>Date :</strong> {{ formatDate(match.matchs_date) }}</p>
+              <p>Still need to play</p>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="connected === 'admin'" class="card add-card no-flip">
+          <div class="card-inner">
+            <div class="card-front">
+              <button class="add-match-button" @click="addMatch">
+                <span class="plus">+</span>
+              </button>
             </div>
           </div>
         </div>
@@ -37,56 +70,65 @@
   </div>
 </template>
 
+
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
-      matches: [
-        {
-          match_id: 'M001',
-          team1: 'Le 129',
-          team2: 'Papaya Eater',
-          match_date: '2024-10-20',
-          score_team1: 2,
-          score_team2: 3,
-          tournament_id: 'T001'
-        },
-        {
-          match_id: 'M002',
-          team1: 'Burito FC',
-          team2: 'Datebayo',
-          match_date: '2024-11-15',
-          score_team1: 1,
-          score_team2: 1,
-          tournament_id: 'T002'
-        },
-        {
-          match_id: 'M003',
-          team1: 'Cygogne des îles',
-          team2: 'Oeil de pigeon',
-          match_date: '2024-12-05',
-          score_team1: 4,
-          score_team2: 2,
-          tournament_id: 'T003'
-        },
-        {
-            match_id: 'M004',
-            team1 : 'Le Tigre dormant',
-            team2 : 'La Tortue mangeuse de chats',
-            match_date: '2024-05-05',
-            score_team1: 1,
-            score_team2: 0,
-            tournament_id: 'T001'
-        },
-        
-      ]
+      matchesWithScores: [],
+      matchesWithoutScores: [],
+      connected: "user", 
     };
-  }
+  },
+  methods: {
+    async fetchMatch() {
+      try {
+        const response = await axios.get("http://localhost:3000/api/matches");
+        const { matchesWithScores, matchesWithoutScores } = response.data;
+        this.matchesWithScores = matchesWithScores;
+        this.matchesWithoutScores = matchesWithoutScores;
+        console.log("Matches loaded:", {
+          matchesWithScores: this.matchesWithScores,
+          matchesWithoutScores: this.matchesWithoutScores,
+        });
+      } catch (error) {
+        console.error("Error loading matches:", error);
+      }
+    },
+
+    formatDate(dateString) {
+      const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+      return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+
+    switchconnect() {
+      const levels = ["user", "admin"];
+      this.connected = levels[(levels.indexOf(this.connected) + 1) % levels.length];
+    },
+
+    addMatch() {
+      alert("Add a match");
+    },
+
+    async deleteMatch(matchId) {
+      try {
+        await axios.delete(`http://localhost:3000/api/matches/${matchId}`);
+        await this.fetchMatch();
+        alert("Match deleted");
+      } catch (error) {
+        console.error("Error deleting match:", error);
+      }
+    },
+  },
+  async mounted() {
+    await this.fetchMatch();
+  },
 };
 </script>
 
 <style scoped>
-
 .navbar {
   width: 1450px;
   display: flex;
@@ -240,5 +282,74 @@ p {
 
 .card-back p {
   margin: 5px 0;
+}
+
+/* Carte "ajouter match" */
+.add-card {
+  width: 200px;
+  height: 300px;
+  background-color: #85929e;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 10px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Empêche la carte d'ajouter un match de se retourner */
+.no-flip .card-inner {
+  transform: none !important;
+  transition: none !important;
+}
+
+.add-match-button {
+  font-size: 24px;
+  background-color: #374151;
+  color: white;
+  border: none;
+  padding: 20px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-match-button:hover {
+  background-color: #1f2937;
+}
+
+.connection-switch {
+  margin-top: 100px;
+  text-align: center;
+}
+
+.connection-switch button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #85929e;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.connection-switch button:hover {
+  background-color: #5d6d7e;
+}
+
+.delete-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: transparent;
+  color: #f44336;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.delete-btn:hover {
+  color: #d32f2f;
 }
 </style>

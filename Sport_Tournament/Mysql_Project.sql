@@ -11,7 +11,7 @@ DROP TABLE IF EXISTS Player;
 
 -- Table Player (sans auto-incrément car player_id est un VARCHAR)
 CREATE TABLE Player(
-   player_id VARCHAR(50),
+   player_id INT AUTO_INCREMENT,
    player_last_name VARCHAR(50) NOT NULL,
    player_first_name VARCHAR(50) NOT NULL,
    player_mail VARCHAR(50) NOT NULL,
@@ -41,7 +41,7 @@ CREATE TABLE Team(
    team_creation_date DATE NOT NULL,
    team_location VARCHAR(50) NOT NULL,
    team_coach VARCHAR(50) NOT NULL,
-   team_captain VARCHAR(50) NOT NULL,
+   team_captain INT NOT NULL,
    PRIMARY KEY(team_id),
    UNIQUE(team_captain),
    UNIQUE(team_name),
@@ -53,8 +53,8 @@ CREATE TABLE Matchs(
    matchs_id INT AUTO_INCREMENT,
    toornament_id INT NOT NULL,
    matchs_date DATE NOT NULL,
-   matchs_score1 INT NOT NULL,
-   matchs_score2 INT NOT NULL,
+   matchs_score1 VARCHAR(50) DEFAULT '/',
+   matchs_score2 VARCHAR(50) DEFAULT '/',
    team1_id INT NOT NULL,
    team2_id INT NOT NULL,
    PRIMARY KEY(matchs_id),
@@ -66,7 +66,7 @@ CREATE TABLE Matchs(
 -- Table Belong (liens entre joueurs et équipes)
 CREATE TABLE Belong(
    team_id INT,
-   player_id VARCHAR(50),
+   player_id INT,
    PRIMARY KEY(team_id, player_id),
    FOREIGN KEY(team_id) REFERENCES Team(team_id),
    FOREIGN KEY(player_id) REFERENCES Player(player_id)
@@ -83,32 +83,32 @@ CREATE TABLE Play(
 
 
 -- Insertion de 10 joueurs dans la table Player
-INSERT INTO Player (player_id, player_last_name, player_first_name, player_mail, player_age, player_phone_number)
+INSERT INTO Player (player_last_name, player_first_name, player_mail, player_age, player_phone_number)
 VALUES 
-('P001', 'Doe', 'John', 'john.doe@example.com', 28, 1234567890),
-('P002', 'Smith', 'Jane', 'jane.smith@example.com', 24, 1234567891),
-('P003', 'Brown', 'Charlie', 'charlie.brown@example.com', 30, 1234567892),
-('P004', 'Taylor', 'Emma', 'emma.taylor@example.com', 26, 1234567893),
-('P005', 'Johnson', 'Oliver', 'oliver.johnson@example.com', 29, 1234567894),
-('P006', 'Williams', 'Sophia', 'sophia.williams@example.com', 27, 1234567895),
-('P007', 'Jones', 'Liam', 'liam.jones@example.com', 25, 1234567896),
-('P008', 'Garcia', 'Ava', 'ava.garcia@example.com', 31, 1234567897),
-('P009', 'Miller', 'Isabella', 'isabella.miller@example.com', 23, 1234567898),
-('P010', 'Davis', 'Mason', 'mason.davis@example.com', 32, 1234567899);
+('Doe', 'John', 'john.doe@example.com', 28, 1234567890),
+('Smith', 'Jane', 'jane.smith@example.com', 24, 1234567891),
+('Brown', 'Charlie', 'charlie.brown@example.com', 30, 1234567892),
+('Taylor', 'Emma', 'emma.taylor@example.com', 26, 1234567893),
+('Johnson', 'Oliver', 'oliver.johnson@example.com', 29, 1234567894),
+('Williams', 'Sophia', 'sophia.williams@example.com', 27, 1234567895),
+('Jones', 'Liam', 'liam.jones@example.com', 25, 1234567896),
+('Garcia', 'Ava', 'ava.garcia@example.com', 31, 1234567897),
+('Miller', 'Isabella', 'isabella.miller@example.com', 23, 1234567898),
+('Davis', 'Mason', 'mason.davis@example.com', 32, 1234567899);
 
 -- Insertion de 10 équipes dans la table Team
 INSERT INTO Team (team_id, team_name, team_number, team_creation_date, team_location, team_coach, team_captain)
 VALUES 
-(1, 'Lions', 11, '2020-06-01', 'Paris', 'Coach A', 'P001'),
-(2, 'Tigers', 11, '2021-07-10', 'Berlin', 'Coach B', 'P002'),
-(3, 'Bears', 11, '2019-05-15', 'London', 'Coach C', 'P003'),
-(4, 'Wolves', 11, '2022-09-01', 'New York', 'Coach D', 'P004'),
-(5, 'Eagles', 11, '2020-08-25', 'Tokyo', 'Coach E', 'P005'),
-(6, 'Panthers', 11, '2021-11-12', 'Madrid', 'Coach F', 'P006'),
-(7, 'Sharks', 11, '2021-05-30', 'Sydney', 'Coach G', 'P007'),
-(8, 'Hawks', 11, '2022-03-22', 'Rome', 'Coach H', 'P008'),
-(9, 'Dragons', 11, '2018-10-19', 'Beijing', 'Coach I', 'P009'),
-(10, 'Cobras', 11, '2020-12-05', 'Dubai', 'Coach J', 'P010');
+(1, 'Lions', 11, '2020-06-01', 'Paris', 'Coach A', 1),
+(2, 'Tigers', 11, '2021-07-10', 'Berlin', 'Coach B', 2),
+(3, 'Bears', 11, '2019-05-15', 'London', 'Coach C', 3),
+(4, 'Wolves', 11, '2022-09-01', 'New York', 'Coach D', 4),
+(5, 'Eagles', 11, '2020-08-25', 'Tokyo', 'Coach E', 5),
+(6, 'Panthers', 11, '2021-11-12', 'Madrid', 'Coach F', 6),
+(7, 'Sharks', 11, '2021-05-30', 'Sydney', 'Coach G', 7),
+(8, 'Hawks', 11, '2022-03-22', 'Rome', 'Coach H', 8),
+(9, 'Dragons', 11, '2018-10-19', 'Beijing', 'Coach I', 9),
+(10, 'Cobras', 11, '2020-12-05', 'Dubai', 'Coach J', 10);
 
 -- Insertion de 10 tournois dans la table Toornament
 INSERT INTO Toornament (toornament_id,toornament_mail, toornament_name, toornament_location, toornament_start_date, toornament_end_date)
@@ -127,40 +127,44 @@ VALUES
 -- Insertion des matchs avec équipes originales
 INSERT INTO Matchs (matchs_date,toornament_id, matchs_score1, matchs_score2, team1_id, team2_id)
 VALUES 
-('2024-06-01', 1, 3, 1, 1, 2),  -- Lions vs Tigers dans Summer Championship
-('2024-06-01', 1, 1, 3, 2, 1),  -- Tigers vs Lions dans Summer Championship (inverse)
-('2024-06-02', 1, 2, 2, 3, 4),  -- Bears vs Wolves dans Summer Championship
-('2024-06-02', 1, 2, 2, 4, 3),  -- Wolves vs Bears dans Summer Championship (inverse)
-('2024-12-01', 2, 1, 0, 5, 1),  -- Eagles vs Lions dans Winter Cup
-('2024-12-01', 2, 0, 1, 1, 5),  -- Lions vs Eagles dans Winter Cup (inverse)
-('2024-12-05', 2, 4, 2, 2, 3),  -- Tigers vs Bears dans Winter Cup
-('2024-12-05', 2, 2, 4, 3, 2),  -- Bears vs Tigers dans Winter Cup (inverse)
-('2024-03-15', 3, 2, 3, 4, 5),  -- Wolves vs Eagles dans Spring Clash
-('2024-03-15', 3, 3, 2, 5, 4),  -- Eagles vs Wolves dans Spring Clash (inverse)
-('2024-09-10', 4, 0, 2, 6, 7),  -- Panthers vs Sharks dans Autumn Invitational
-('2024-09-10', 4, 2, 0, 7, 6),  -- Sharks vs Panthers dans Autumn Invitational (inverse)
-('2024-08-05', 5, 3, 3, 8, 9),  -- Hawks vs Dragons dans Global Tournament
-('2024-08-05', 5, 3, 3, 9, 8),  -- Dragons vs Hawks dans Global Tournament (inverse)
-('2024-11-15', 6, 5, 1, 10, 1), -- Cobras vs Lions dans World Cup
-('2024-11-15', 6, 1, 5, 1, 10), -- Lions vs Cobras dans World Cup (inverse)
-('2024-10-01', 9, 4, 4, 5, 9),  -- Eagles vs Dragons dans Dragon’s Challenge
-('2024-10-01', 9, 4, 4, 9, 5),  -- Dragons vs Eagles dans Dragon’s Challenge (inverse)
-('2024-07-20', 10, 2, 1, 7, 3), -- Sharks vs Bears dans Desert Duel
-('2024-07-20', 10, 1, 2, 3, 7); -- Bears vs Sharks dans Desert Duel (inverse)
+('2024-06-01', 1, "3", "1", 1, 2),  -- Lions vs Tigers dans Summer Championship
+('2024-06-01', 1, "1", "3", 2, 1),  -- Tigers vs Lions dans Summer Championship (inverse)
+('2024-06-02', 1, "2", "2", 3, 4),  -- Bears vs Wolves dans Summer Championship
+('2024-06-02', 1, "2", "2", 4, 3),  -- Wolves vs Bears dans Summer Championship (inverse)
+('2024-12-01', 2, "1", "0", 5, 1),  -- Eagles vs Lions dans Winter Cup
+('2024-12-01', 2, "0", "1", 1, 5),  -- Lions vs Eagles dans Winter Cup (inverse)
+('2024-12-05', 2, "4", "2", 2, 3),  -- Tigers vs Bears dans Winter Cup
+('2024-12-05', 2, "2", "4", 3, 2),  -- Bears vs Tigers dans Winter Cup (inverse)
+('2024-03-15', 3, "2", "3", 4, 5),  -- Wolves vs Eagles dans Spring Clash
+('2024-03-15', 3, "3", "2", 5, 4),  -- Eagles vs Wolves dans Spring Clash (inverse)
+('2024-09-10', 4, "0", "2", 6, 7),  -- Panthers vs Sharks dans Autumn Invitational
+('2024-09-10', 4, "2", "0", 7, 6),  -- Sharks vs Panthers dans Autumn Invitational (inverse)
+('2024-08-05', 5, "3", "3", 8, 9),  -- Hawks vs Dragons dans Global Tournament
+('2024-08-05', 5, "3", "3", 9, 8);  -- Dragons vs Hawks dans Global Tournament (inverse)
+
+-- Insertion des matchs à venir
+INSERT INTO Matchs (matchs_date,toornament_id, team1_id, team2_id)
+VALUES 
+('2024-11-15', 6, 10, 1), -- Cobras vs Lions dans World Cup
+('2024-11-15', 6, 1, 10), -- Lions vs Cobras dans World Cup (inverse)
+('2024-10-01', 9, 5, 9),  -- Eagles vs Dragons dans Dragon’s Challenge
+('2024-10-01', 9, 9, 5),  -- Dragons vs Eagles dans Dragon’s Challenge (inverse)
+('2024-07-20', 10, 7, 3), -- Sharks vs Bears dans Desert Duel
+('2024-07-20', 10, 3, 7); -- Bears vs Sharks dans Desert Duel (inverse)
 
 -- Insertion des appartenances des joueurs aux équipes
 INSERT INTO Belong (team_id, player_id)
 VALUES 
-(1, 'P001'),  -- John Doe dans Lions
-(2, 'P002'),  -- Jane Smith dans Tigers
-(3, 'P003'),  -- Charlie Brown dans Bears
-(4, 'P004'),  -- Emma Taylor dans Wolves
-(5, 'P005'),  -- Oliver Johnson dans Eagles
-(6, 'P006'),  -- Sophia Williams dans Panthers
-(7, 'P007'),  -- Liam Jones dans Sharks
-(8, 'P008'),  -- Ava Garcia dans Hawks
-(9, 'P009'),  -- Isabella Miller dans Dragons
-(10, 'P010');  -- Mason Davis dans Cobras
+(1, 1),  -- John Doe dans Lions
+(2, 2),  -- Jane Smith dans Tigers
+(3, 3),  -- Charlie Brown dans Bears
+(4, 4),  -- Emma Taylor dans Wolves
+(5, 5),  -- Oliver Johnson dans Eagles
+(6, 6),  -- Sophia Williams dans Panthers
+(7, 7),  -- Liam Jones dans Sharks
+(8, 8),  -- Ava Garcia dans Hawks
+(9, 9),  -- Isabella Miller dans Dragons
+(10, 10);  -- Mason Davis dans Cobras
 
 -- Insertion des équipes dans les tournois
 INSERT INTO Play (team_id, toornament_id)

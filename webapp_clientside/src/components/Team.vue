@@ -1,9 +1,10 @@
 <template>
   <div>
+    <!-- Navbar -->
     <header class="navbar">
       <div class="navbar-left">
         <img src="@/assets/Sport_tournament.png" alt="Sport Tournament Logo" class="logo" />
-        <h1 class="site-title">The Sport Tournament</h1>
+        <h1 class="site-title">The Sport Toornament</h1>
       </div>
       <nav class="nav-links">
         <ul>
@@ -15,54 +16,67 @@
         </ul>
       </nav>
     </header>
-    <div>
-<br>
-    </div>
+    <div><br></div>
 
+    <!-- Action Buttons -->
     <div class="edit-buttons">
       <button @click="showAddModal = true">Add New Team</button>
       <button @click="showDeleteModal = true">Delete Team</button>
     </div>
 
+    <!-- Team List -->
     <div class="team-card-container">
       <h1>List of your Teams</h1>
       <div class="team-cards-wrapper">
         <router-link
           class="team-card"
-          v-for="team in teams" :key="team.team_id"
-          :to="{ name: 'Players', params: { id: team.team_id } }">
+          v-for="team in teams"
+          :key="team.team_id"
+          :to="{ name: 'Players', params: { team_id: team.team_id } }">
           <div class="team-card-inner">
             <div class="team-card-front">
               <h2>{{ team.team_name }}</h2>
               <p><strong>Coach :</strong> {{ team.team_coach }}</p>
             </div>
             <div class="team-card-back">
-              <p><strong>Captain :</strong> {{ team.team_captain }}</p>
-              <p><strong>Date of creation :</strong> {{ team.team_creation_date }}</p>
+              <p><strong>Captain :</strong>{{ team.team_captain_firstname }} {{ team.team_captain_lastname }}</p>
+              <p><strong>Date of creation :</strong> {{ formatDate(team.team_creation_date) }}</p>
               <p><strong>Localisation :</strong> {{ team.team_location }}</p>
               <p><strong>Number of players :</strong> {{ team.team_number }}</p>
-            </div>
-          </div>
-        </router-link>
+    </div>
+  </div>
+</router-link>
       </div>
     </div>
 
-    <div v-if="showAddModal" class="modal">
-      <div class="modal-content">
-        <h3>Add New Team</h3>
-        <form @submit.prevent="addTeam">
-          <input v-model="newTeam.team_name" type="text" placeholder="Team Name" required />
-          <input v-model="newTeam.team_coach" type="text" placeholder="Coach" required />
-          <input v-model="newTeam.team_captain" type="text" placeholder="Captain" required />
-          <input v-model="newTeam.team_location" type="text" placeholder="Location" required />
-          <input v-model="newTeam.team_number" type="number" placeholder="Number of Players" required />
-          <input v-model="newTeam.team_creation_date" type="date" required />
-          <button type="submit">Add</button>
-          <button @click="showAddModal = false">Cancel</button>
-        </form>
-      </div>
-    </div>
+<!-- Add Team Modal -->
+<div v-if="showAddModal" class="modal">
+  <div class="modal-content">
+    <h3>Add New Team</h3>
+    <form @submit.prevent="addTeam">
+      <input v-model="newTeam.team_name" type="text" placeholder="Team Name" required />
+      <input v-model="newTeam.team_coach" type="text" placeholder="Coach" required />
+      <input v-model="newTeam.team_captain_firstname" type="text" placeholder="Captain First Name" required />
+      <input v-model="newTeam.team_captain_lastname" type="text" placeholder="Captain Last Name" required />
+      <input v-model="newTeam.team_location" type="text" placeholder="Location" required />
+      <input v-model="newTeam.team_number" type="number" placeholder="Number of Players" required />
+      <input v-model="newTeam.team_creation_date" type="date" required />
+      <button type="submit">Add Team</button>
+      <button @click="showAddModal = false">Cancel</button>
+    </form>
 
+    <!-- Add Player Captain form if not exist-->
+    <div v-if="showCaptainForm">
+      <h4>New Captain Information</h4>
+      <input v-model="newCaptain.player_mail" type="email" placeholder="Captain Email" required />
+      <input v-model="newCaptain.player_age" type="number" placeholder="Captain Age" required />
+      <input v-model="newCaptain.player_phone_number" type="text" placeholder="Captain Phone Number" required />
+      <button @click="saveCaptain">Save Captain</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Team-->
     <div v-if="showDeleteModal" class="modal">
       <div class="modal-content">
         <h3>Delete Team</h3>
@@ -75,72 +89,188 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   data() {
     return {
       showAddModal: false,
       showDeleteModal: false,
+
+      // We use  newTeam to store the data of the new team to be added
       newTeam: {
-        team_name: '',
-        team_coach: '',
-        team_captain: '',
-        team_location: '',
-        team_number: '',
-        team_creation_date: ''
+        team_name: "",
+        team_coach: "",
+        team_captain_firstname: "",
+        team_captain_lastname: "",
+        team_location: "",
+        team_number: 1,
+        team_creation_date: ""
       },
-      teamNameToDelete: '',
-      teams: [
-        { team_id: 1, team_name: 'Lions', team_number: 11, team_creation_date: '2020-06-01', team_location: 'Paris', team_coach: 'Coach A', team_captain: 'John Doe' },
-        { team_id: 2, team_name: 'Tigers', team_number: 11, team_creation_date: '2021-07-10', team_location: 'Berlin', team_coach: 'Coach A', team_captain: 'Jane Smith' },
-        { team_id: 3, team_name: 'Bears', team_number: 11, team_creation_date: '2019-05-15', team_location: 'London', team_coach: 'Coach C', team_captain: 'Charlie Brown' },
-        { team_id: 4, team_name: 'Wolves', team_number: 11, team_creation_date: '2022-09-01', team_location: 'New York', team_coach: 'Coach D', team_captain: 'Emma Taylor' },
-        { team_id: 5, team_name: 'Eagles', team_number: 11, team_creation_date: '2020-08-25', team_location: 'Tokyo', team_coach: 'Coach E', team_captain: 'Oliver Johnson' },
-        { team_id: 6, team_name: 'Panthers', team_number: 11, team_creation_date: '2021-11-12', team_location: 'Madrid', team_coach: 'Coach F', team_captain: 'Sophia Williams' },
-        { team_id: 7, team_name: 'Sharks', team_number: 11, team_creation_date: '2021-05-30', team_location: 'Sydney', team_coach: 'Coach G', team_captain: 'Liam Jones' },
-        { team_id: 8, team_name: 'Hawks', team_number: 11, team_creation_date: '2022-03-22', team_location: 'Rome', team_coach: 'Coach H', team_captain: 'Ava Garcia' },
-        { team_id: 9, team_name: 'Dragons', team_number: 11, team_creation_date: '2018-10-19', team_location: 'Beijing', team_coach: 'Coach I', team_captain: 'Isabella Miller' },
-        { team_id: 10, team_name: 'Cobras', team_number: 11, team_creation_date: '2020-12-05', team_location: 'Dubai', team_coach: 'Coach J', team_captain: 'Mason Davis' }
-      ]
+
+      // We use newCaptain to store the data of the new captain to be added
+      newCaptain: {
+        player_mail: "",
+        player_age: "",
+        player_phone_number: ""
+      },
+
+      // We store the variable we need to delete, show the form, and the list of teams
+      teamNameToDelete: "",
+      teams: [], // we put there the list of the teams with the fetchTeams function
+      captainExists: true, // we suppose that the captain exists by default and we'll check for it after
+      showCaptainForm: false 
     };
   },
   methods: {
-    addTeam() {
-      if (!this.newTeam.team_name || !this.newTeam.team_coach || !this.newTeam.team_captain) {
-        alert("All fields are required!");
-        return;
+    async fetchTeams() {
+      try {
+        const response = await axios.get("http://localhost:3000/api/teams"); // we go to the route of route.get from the teamapi.route.js
+        this.teams = response.data;
+      } catch (error) {
+        console.error("Error when we load the teams : ", error);
       }
-
-      const newTeamId = this.teams.length ? this.teams[this.teams.length - 1].team_id + 1 : 1;
-      const teamToAdd = { ...this.newTeam, team_id: newTeamId };
-
-      this.teams.push(teamToAdd);
-      this.showAddModal = false;
-      this.resetNewTeam();
     },
-    deleteTeam() {
-      const teamIndex = this.teams.findIndex(team => team.team_name === this.teamNameToDelete);
-      if (teamIndex === -1) {
-        alert("Team not found");
-        return;
+
+
+    async checkCaptainExistence() {
+      try {
+        const { team_captain_firstname, team_captain_lastname } = this.newTeam;  // For this function, we only needs the name of the captain so we take it from the newTeam
+        const response = await axios.get(
+          `http://localhost:3000/api/players?firstname=${team_captain_firstname}&lastname=${team_captain_lastname}`
+        ); // We use the route.get from the playerapi.route.js
+        this.captainExists = response.data.exists;
+        this.showCaptainForm = !this.captainExists;
+      } catch (error) {
+        console.error("Error while verfiying the captain : ", error);
       }
-
-      this.teams.splice(teamIndex, 1);
-      this.showDeleteModal = false;
-      this.teamNameToDelete = '';
     },
-    resetNewTeam() {
-      this.newTeam = {
-        team_name: '',
-        team_coach: '',
-        team_captain: '',
-        team_location: '',
-        team_number: 1,
-        team_creation_date: ''
-      };
+
+    async addTeam() {
+  try {
+    await this.checkCaptainExistence(); // Verify if our captain exists
+
+    //------------------------- Case where the captain doesn't exist -------------------------
+    if (!this.captainExists) {
+      alert("Your captain doestn't exist in the database. Please add it first.");
+      this.showCaptainForm = true; 
+      return; // we need to put this return to stop the function if the captain doesn't exist
+    }
+
+    //------------------------- Case where the captain exists -------------------------
+    const response = await axios.post("http://localhost:3000/api/teams", this.newTeam); // we go to the route.post from the teamapi.route.js
+
+    //------------------------- We add the team to the belong table -------------------------
+    await axios.post("http://localhost:3000/api/belong", {
+      team_name: this.newTeam.team_name,
+      team_captain_firstname: this.newTeam.team_captain_firstname,
+      team_captain_lastname: this.newTeam.team_captain_lastname,
+    });
+
+
+    //------------------------- We reset the form and show a success message -------------------------
+    alert("Team successfully added !");
+    this.fetchTeams(); 
+    this.resetNewTeam();
+    this.showAddModal = false;
+  } catch (error) {
+    console.error("Error while adding team : ", error);
+    alert("An error occured while adding your team. Retry.");
+  }
+
+  },
+  async saveCaptain() {
+  try {
+    //------------------------- Check if the fields are filled -------------------------
+    if (!this.newTeam.team_captain_firstname || !this.newTeam.team_captain_lastname) {
+      alert("The first name and the last name of the captain are required.");
+      return;
+    }
+    if (!this.newCaptain.player_mail || !this.newCaptain.player_age || !this.newCaptain.player_phone_number) {
+      alert("The email, the age and the phone number of the captain are required.");
+      return;
+    }
+
+    //------------------------- Add the captain -------------------------
+    const response = await axios.post("http://localhost:3000/api/players", {
+      first_name: this.newTeam.team_captain_firstname,
+      last_name: this.newTeam.team_captain_lastname,
+      email: this.newCaptain.player_mail,
+      age: parseInt(this.newCaptain.player_age),
+      phone_number: parseInt(this.newCaptain.player_phone_number),
+    });
+
+
+    alert("Successfully added the captain!");
+    this.captainExists = true;
+    this.showCaptainForm = false;
+  } catch (error) {
+    console.error("Error while adding the captain: ", error.response || error.message);
+    alert("Please retry to add the captain.");
+  }
+},
+
+
+async deleteTeam() {
+  try {
+    // -------------------------------------- Delete the team from the belong table --------------------------------------
+
+    const response1 = await axios.delete(`http://localhost:3000/api/belong`,{
+      data: { team_name: this.teamNameToDelete }
+    });
+
+
+    // -------------------------------------- Delete the team from the team table --------------------------------------
+    const response = await axios.delete(`http://localhost:3000/api/teams/${this.teamNameToDelete}`); 
+
+
+    alert("Successfully deleted the team !");
+    this.fetchTeams(); // Refresh our list of teams
+    this.teamNameToDelete = ""; 
+    this.showDeleteModal = false; 
+  } catch (error) {
+    console.error("Error while deleting the team : ", error);
+
+    if (error.response && error.response.status === 404) {
+      alert("The team doesn't exists.");
+    } else {
+      alert("You have a match, you can't delete the team or contact an admin.");
     }
   }
+},
+
+resetNewTeam() {
+  this.newTeam = {
+    team_name: "",
+    team_coach: "",
+    team_captain_firstname: "",
+    team_captain_lastname: "",
+    team_location: "",
+    team_number: 1,
+    team_creation_date: ""
+  };
+  this.newCaptain = {
+    player_mail: "",
+    player_age: "",
+    player_phone_number: ""
+  };
+  this.captainExists = true;
+  this.showCaptainForm = false;
+},
+
+formatDate(dateString) { // Function to format the date to cut the time
+  const options = { year: "numeric", month: "2-digit", day: "2-digit" };
+  return new Date(dateString).toLocaleDateString(undefined, options);
+}
+},
+async mounted() {
+  await this.fetchTeams();
+}
 };
+
 </script>
+
+
 
 <style scoped>
 
