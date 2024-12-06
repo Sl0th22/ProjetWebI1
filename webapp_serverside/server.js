@@ -1,66 +1,86 @@
 require('dotenv').config();
 
-// Importation des modules nécessaires
+// Import the moduls
 const express = require('express');
 const mysql = require('mysql2');
-const cors = require('cors'); // Pour éviter les problèmes de CORS avec le frontend Vue.js
+const cors = require('cors'); 
+const bodyParser = require('body-parser');
+const session = require('express-session');
 
+// Initiate the app
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Utiliser CORS pour permettre les requêtes depuis le frontend
-app.use(cors());
+//Middleware : Configure CORS
+app.use(cors({
+  origin: 'http://localhost:8080', // Frontend Vue.js
+  credentials: true,
+  methods: ['GET', 'POST', 'DELETE', 'PUT', 'PATCH']
+}));
 
-// Activer le parsing des requêtes JSON
+//Middleware : Configure the session session (needed for Passport)
+app.use(session({
+  secret: 'SecretRandomString',
+  saveUninitialized: true,
+  cookie: { maxAge: 1000 * 60 * 60 * 24, httpOnly: false, secure: false },
+  resave: false
+}));
+
+//Middleware : Initiate password
+const auth = require('./utils/users.auth');
+auth.initializeAuthentications(app);
+app.use('/auth', require('./controllers/auth.route')); // Import the auth.route.js
+
+//Middleware : Parsing JSON requests
 app.use(express.json());
 
-// Configuration de la connexion MySQL via les variables d'environnement
+//Middleware : Configure bodyParser
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+//Connexion to the database
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
   password: process.env.DB_PASSWORD || '123456789',
   database: process.env.DB_NAME || 'sport1',
 };
-
 const db = mysql.createConnection(dbConfig);
-
 db.connect((err) => {
   if (err) {
-    console.error('Erreur de connexion à la base de données:', err.message);
-    console.log('Vérifiez les informations de connexion (hôte, utilisateur, mot de passe, base).');
+    console.error('Error while connecting the databse:', err.message);
     process.exit(1);
   } else {
-    console.log('Connexion à la base de données MySQL réussie.');
+    console.log('Connexion to the databse is ok.');
   }
 });
 
+// Routers API
 const toornamentRoutes = require('./controllers/toornamentapi.route');
-app.use('/api/toornament', toornamentRoutes);
-
 const teamRoutes = require('./controllers/teamapi.route');
-app.use('/api/teams', teamRoutes);
-
 const playerRoutes = require('./controllers/playerapi.route');
-app.use('/api/players', playerRoutes);
-
-const belongRoutes = require('./controllers/belongapi.route'); 
-app.use('/api/belong', belongRoutes);
-
+const belongRoutes = require('./controllers/belongapi.route');
 const matchRoutes = require('./controllers/matchapi.route');
+
+// Define the routers
+app.use('/api/toornament', toornamentRoutes);
+app.use('/api/teams', teamRoutes);
+app.use('/api/players', playerRoutes);
+app.use('/api/belong', belongRoutes);
 app.use('/api/matches', matchRoutes);
 
+// Verify the connection to the database
 app.get('/test', (req, res) => {
   db.query('SELECT 1', (err, results) => {
     if (err) {
-      console.error('Erreur lors de la requête SQL:', err.message);
-      return res.status(500).json({ message: 'Erreur lors de la connexion à la base de données' });
+      console.error('Error while connecting to the databse:', err.message);
+      return res.status(500).json({ message: 'Error database connexion' });
     }
-    res.json({ message: 'Connexion MySQL réussie!', results });
+    res.json({ message: 'Connexion MySQL OK !', results });
   });
 });
 
-// Démarrer le serveur
+// Start the server
 app.listen(port, () => {
-  console.log(`Le serveur fonctionne sur le port ${port}`);
+  console.log(`The server is on the port : ${port}`);
 });
-

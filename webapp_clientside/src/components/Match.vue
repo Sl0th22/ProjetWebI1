@@ -11,15 +11,11 @@
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/login">Login</router-link></li>
+          <li v-if="!isAuthenticated"><router-link to="/login">Login</router-link></li>
+          <li v-if="isAuthenticated"><a @click.prevent="logoutUser" href="#">Logout</a></li>
         </ul>
       </nav>
     </header>
-
-    <div class="connection-switch">
-      <button @click="switchconnect">Connected: {{ connected }}</button>
-    </div>
-
     <div class="card-container">
       <h1>List of your Precedent Matches</h1>
       <div class="cards-wrapper">
@@ -31,7 +27,7 @@
 
             </div>
             <div class="card-back">
-              <button v-if="connected === 'admin'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
+              <button v-if="userRole === 'ADMIN'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
               <p><strong>Date :</strong> {{ formatDate(match.matchs_date) }}</p>
               <p><strong>Score {{ match.team1_name }} :</strong> {{ match.matchs_score1 }}</p>
               <p><strong>Score {{ match.team2_name}} :</strong> {{ match.matchs_score2 }}</p>
@@ -49,14 +45,14 @@
 
             </div>
             <div class="card-back">
-              <button v-if="connected === 'admin'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
+              <button v-if="userRole === 'ADMIN'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
               <p><strong>Date :</strong> {{ formatDate(match.matchs_date) }}</p>
               <p>Still need to play</p>
             </div>
           </div>
         </div>
 
-        <div v-if="connected === 'admin'" class="card add-card no-flip">
+        <div v-if="userRole === 'ADMIN'" class="card add-card no-flip">
           <div class="card-inner">
             <div class="card-front">
               <button class="add-match-button" @click="addMatch">
@@ -79,7 +75,7 @@ export default {
     return {
       matchesWithScores: [],
       matchesWithoutScores: [],
-      connected: "user", 
+      userRole : localStorage.getItem("userRole")
     };
   },
   methods: {
@@ -103,11 +99,6 @@ export default {
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
 
-    switchconnect() {
-      const levels = ["user", "admin"];
-      this.connected = levels[(levels.indexOf(this.connected) + 1) % levels.length];
-    },
-
     addMatch() {
       alert("Add a match");
     },
@@ -120,6 +111,17 @@ export default {
       } catch (error) {
         console.error("Error deleting match:", error);
       }
+    },
+    logoutUser() {
+      localStorage.removeItem("userRole"); 
+      this.userRole = null; 
+      this.$router.push("/login");
+    },
+
+  },
+  computed: {
+    isAuthenticated() {
+      return this.connected !== null;
     },
   },
   async mounted() {
@@ -315,26 +317,6 @@ p {
 
 .add-match-button:hover {
   background-color: #1f2937;
-}
-
-.connection-switch {
-  margin-top: 100px;
-  text-align: center;
-}
-
-.connection-switch button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #85929e;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.connection-switch button:hover {
-  background-color: #5d6d7e;
 }
 
 .delete-btn {
