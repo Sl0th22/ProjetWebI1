@@ -11,7 +11,8 @@
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/login">Login</router-link></li>
+          <li v-if="!isAuthenticated"><router-link to="/login">Login</router-link></li>
+          <li v-if="isAuthenticated"><a @click.prevent="logoutUser" href="#">Logout</a></li>
         </ul>
       </nav>
     </header>
@@ -20,7 +21,7 @@
     <div>
       <nav>
         <ul>
-          <li v-if="connected === 'admin'">
+          <li v-if="userRole === 'ADMIN'">
             <button class="add" @click="showAddModal = true">Add Tournament</button>
           </li>
         </ul>
@@ -37,12 +38,11 @@
     </div>
     <br />
     <div class="tournament-list">
-      <button @click="switchconnect">Connected: {{ connected }}</button>
       <hr />
       <div v-for="tournament in filteredTournaments" :key="tournament.toornament_id" class="tournament-item">
         <div class="title-container">
           <h2>{{ tournament.toornament_name }}</h2>
-          <button v-if="connected === 'admin'" class="delT" @click="deleteTournament(tournament.toornament_id)">X</button>
+          <button v-if="userRole === 'ADMIN'" class="delT" @click="deleteTournament(tournament.toornament_id)">X</button>
         </div>
 
         <p>Start date: {{ formatDate(tournament.toornament_start_date) }}</p>
@@ -51,7 +51,7 @@
         <p>Number of team: {{  }}</p>
 
 
-        <div v-if="connected === 'user'">
+        <div v-if="userRole === 'USER'">
           <button @click="openTeamSelection(tournament)">Register your team</button>
         </div>
         <hr />
@@ -97,6 +97,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      userRole : localStorage.getItem("userRole"),
       tournaments: [],
       newTournament: {
         toornament_name: "",
@@ -124,6 +125,9 @@ export default {
       }
       return this.tournaments.filter((t) => t.toornament_location === this.selectedSport);
     },
+    isAuthenticated() {
+    return this.userRole !== null;
+  },
   },
   methods: {
     async fetchTournaments() {
@@ -180,10 +184,6 @@ export default {
     alert("Failed to register the team. Please try again.");
   }
 },
-    switchconnect() {
-      const levels = ["visitor", "user", "admin"];
-      this.connected = levels[(levels.indexOf(this.connected) + 1) % levels.length];
-    },
     openTeamSelection(tournament) {
       this.selectedTournament = tournament;
       this.fetchTeams(); // Charger les équipes disponibles
@@ -200,6 +200,11 @@ export default {
     formatDate(dateString) {
       const options = { year: "numeric", month: "2-digit", day: "2-digit" };
       return new Date(dateString).toLocaleDateString(undefined, options);
+    },
+    logoutUser() {
+      localStorage.removeItem("userRole");
+      this.userRole = null;
+      this.$router.push("/login");
     },
   },
   mounted() {
