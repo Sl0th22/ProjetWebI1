@@ -42,7 +42,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '123456789',
+  password: process.env.DB_PASSWORD || '1234',
   database: process.env.DB_NAME || 'sport1',
 };
 const db = mysql.createConnection(dbConfig);
@@ -61,6 +61,8 @@ const teamRoutes = require('./controllers/teamapi.route');
 const playerRoutes = require('./controllers/playerapi.route');
 const belongRoutes = require('./controllers/belongapi.route');
 const matchRoutes = require('./controllers/matchapi.route');
+const playRoutes = require('./controllers/playapi.route');
+
 
 // Define the routers
 app.use('/api/toornament', toornamentRoutes);
@@ -68,6 +70,8 @@ app.use('/api/teams', teamRoutes);
 app.use('/api/players', playerRoutes);
 app.use('/api/belong', belongRoutes);
 app.use('/api/matches', matchRoutes);
+app.use('/api/play', playRoutes);
+
 
 // Verify the connection to the database
 app.get('/test', (req, res) => {

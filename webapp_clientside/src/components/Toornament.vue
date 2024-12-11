@@ -48,9 +48,11 @@
         <p>Start date: {{ formatDate(tournament.toornament_start_date) }}</p>
         <p>End date: {{ formatDate(tournament.toornament_end_date) }}</p>
         <p>Location: {{ tournament.toornament_location }}</p>
+        <p>Number of team: {{  }}</p>
+
 
         <div v-if="connected === 'user'">
-          <button @click="openTeamSelection(tournament)">Register</button>
+          <button @click="openTeamSelection(tournament)">Register your team</button>
         </div>
         <hr />
       </div>
@@ -133,13 +135,14 @@ export default {
       }
     },
     async fetchTeams() {
-      try {
-        const response = await axios.get("http://localhost:3000/api/teams");
-        this.teams = response.data;
-      } catch (error) {
-        console.error("Error during the recuparation of teams:", error.message);
-      }
-    },
+  try {
+    const response = await axios.get("http://localhost:3000/api/teams");
+    this.teams = response.data;
+    console.log("Teams fetched:", this.teams);
+  } catch (error) {
+    console.error("Error fetching teams:", error.message);
+  }
+},
     async addTournament() {
       try {
         await axios.post("http://localhost:3000/api/toornament", this.newTournament);
@@ -158,23 +161,25 @@ export default {
       }
     },
     async registerToTeam(tournament) {
-      if (!this.selectedTeam) {
-        alert("Please select a team.");
-        return;
-      }
-      try {
-        const payload = {
-          //player_id:1, //  Remplacez par l'ID du joueur connecté
-          team_id: this.selectedTeam,
-        };
-        await axios.post("http://localhost:3000/api/teams/join", payload);
-        alert("Inscription success !");
-        this.closeTeamModal();
-      } catch (error) {
-        console.error("Error while registering:", error.message);
-        alert("Not avalaible yet.");
-      }
-    },
+  try {
+    if (!this.selectedTeam) {
+      alert("Please select a team.");
+      return;
+    }
+
+    // Make API request to join the team to the tournament
+    await axios.post("http://localhost:3000/api/play/join", {
+      team_name: this.teams.find((team) => team.team_id === this.selectedTeam).team_name,
+      tournament_name: tournament.toornament_name,
+    });
+
+    alert("Successfully registered the team to the tournament!");
+    this.closeTeamModal(); // Close the modal after successful registration
+  } catch (error) {
+    console.error("Error while registering to the team:", error.message);
+    alert("Failed to register the team. Please try again.");
+  }
+},
     switchconnect() {
       const levels = ["visitor", "user", "admin"];
       this.connected = levels[(levels.indexOf(this.connected) + 1) % levels.length];

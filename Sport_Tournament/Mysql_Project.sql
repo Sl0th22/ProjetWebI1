@@ -180,5 +180,24 @@ VALUES
 (9, 9),  -- Dragons jouent dans Dragon’s Challenge
 (10, 6);  -- Cobras jouent dans World Cup
 
+Drop table if exists USERS;
+CREATE TABLE USERS (
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_name VARCHAR(255) NOT NULL UNIQUE,
+  user_pass VARCHAR(255) NOT NULL,  -- Mot de passe haché
+  user_role ENUM('USER', 'ADMIN') DEFAULT 'USER',  -- Rôle de l'utilisateur
+  user_created TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO USERS 
+(user_name, user_pass, user_role, user_created)
+VALUES 
+('joeuser', SHA2(CONCAT('1234', 'joeuser'), 224), 'USER', NOW());
+
+INSERT INTO USERS 
+(user_name, user_pass, user_role, user_created)
+VALUES 
+('admin', sha2(concat('12345', 'admin'), 224), 'ADMIN', NOW());
+
 
 
