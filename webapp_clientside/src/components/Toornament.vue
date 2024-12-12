@@ -48,7 +48,7 @@
         <p>Start date: {{ formatDate(tournament.toornament_start_date) }}</p>
         <p>End date: {{ formatDate(tournament.toornament_end_date) }}</p>
         <p>Location: {{ tournament.toornament_location }}</p>
-        <p>Number of team: {{  }}</p>
+        <p>Number of matches: {{ matchesCount[tournament.toornament_id - 1 ].match_count || 0}}</p>
 
 
         <div v-if="userRole === 'USER'">
@@ -99,6 +99,7 @@ export default {
     return {
       userRole : localStorage.getItem("userRole"),
       tournaments: [],
+      matchesCount: {},
       newTournament: {
         toornament_name: "",
         toornament_location: "",
@@ -130,6 +131,17 @@ export default {
   },
   },
   methods: {
+
+    async fetchMatchesCount() {
+    try {
+      const response = await axios.get("http://localhost:3000/api/toornament/matchesCount");
+      this.matchesCount = response.data;
+      console.log(this.matchesCount);
+    } catch (error) {
+      console.error("Error fetching matches count:", error.message);
+    }
+  },
+
     async fetchTournaments() {
       try {
         const response = await axios.get("http://localhost:3000/api/toornament");
@@ -179,6 +191,7 @@ export default {
 
     alert("Successfully registered the team to the tournament!");
     this.closeTeamModal(); // Close the modal after successful registration
+    this.fetchMatch();
   } catch (error) {
     console.error("Error while registering to the team:", error.message);
     alert("Failed to register the team. Please try again.");
@@ -209,6 +222,7 @@ export default {
   },
   mounted() {
     this.fetchTournaments();
+    this.fetchMatchesCount();
   },
 };
 </script>

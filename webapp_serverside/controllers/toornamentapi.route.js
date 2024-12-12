@@ -2,6 +2,17 @@ const express = require('express');
 const router = express.Router();
 const toornamentRepository = require('../utils/toornament.repository');
 
+
+router.get('/matchesCount', async (req, res) => {
+    try {
+        const matchesCount = await toornamentRepository.getMatchesCountByTournament();
+        res.json(matchesCount);
+    } catch (error) {
+        console.error('Error retrieving matches count:', error.message);
+        res.status(500).json({ message: 'Error server' });
+    }
+});
+
 router.get('/', async (req, res) => {
     try {
         const tournaments = await toornamentRepository.getAllTournaments();
@@ -49,7 +60,7 @@ router.delete('/:id', async (req, res) => {
         res.status(500).json({ message: 'Error server' });
     }
 });
-
+  
 
 
 
