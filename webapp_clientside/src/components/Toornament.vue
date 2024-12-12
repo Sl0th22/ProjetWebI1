@@ -9,8 +9,8 @@
         <ul>
           <li><router-link to="/">Home</router-link></li>
           <li><router-link to="/toornament">Toornament</router-link></li>
-          <li><router-link to="/match">Match</router-link></li>
-          <li><router-link to="/team">Team</router-link></li>
+          <li v-if="userRole" ><router-link to="/match">Match</router-link></li>
+          <li v-if="userRole"><router-link to="/team">Team</router-link></li>
           <li v-if="!isAuthenticated"><router-link to="/login">Login</router-link></li>
           <li v-if="isAuthenticated"><a @click.prevent="logoutUser" href="#">Logout</a></li>
         </ul>
