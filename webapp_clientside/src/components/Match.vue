@@ -11,15 +11,11 @@
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/login">Login</router-link></li>
+          <li v-if="!isAuthenticated"><router-link to="/login">Login</router-link></li>
+          <li v-if="isAuthenticated"><a @click.prevent="logoutUser" href="#">Logout</a></li>
         </ul>
       </nav>
     </header>
-
-    <div class="connection-switch">
-      <button @click="switchconnect">Connected: {{ connected }}</button>
-    </div>
-
     <div class="card-container">
       <h1>List of your Precedent Matches</h1>
       <div class="cards-wrapper">
@@ -31,7 +27,7 @@
 
             </div>
             <div class="card-back">
-              <button v-if="connected === 'admin'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
+              <button v-if="userRole === 'ADMIN'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
               <p><strong>Date :</strong> {{ formatDate(match.matchs_date) }}</p>
               <p><strong>Score {{ match.team1_name }} :</strong> {{ match.matchs_score1 }}</p>
               <p><strong>Score {{ match.team2_name}} :</strong> {{ match.matchs_score2 }}</p>
@@ -49,22 +45,65 @@
 
             </div>
             <div class="card-back">
-              <button v-if="connected === 'admin'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
+              <button v-if="userRole === 'ADMIN'" class="delete-btn" @click="deleteMatch(match.matchs_id)">X</button>
               <p><strong>Date :</strong> {{ formatDate(match.matchs_date) }}</p>
               <p>Still need to play</p>
             </div>
           </div>
         </div>
 
-        <div v-if="connected === 'admin'" class="card add-card no-flip">
+        <div v-if="userRole === 'ADMIN'" class="card add-card no-flip">
           <div class="card-inner">
             <div class="card-front">
-              <button class="add-match-button" @click="addMatch">
+              <button class="add-match-button" @click="showAddMatchForm">
                 <span class="plus">+</span>
               </button>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div v-if="showForm" class="modal">
+      <div class="modal-content">
+        <h2>Add a Match</h2>
+        <form @submit.prevent="submitMatchForm">
+          <label for="tournament">Toornament:</label>
+          <select id="tournament" v-model="formData.tournamentId" required>
+            <option v-for="tournament in tournaments" :key="tournament.id" >
+              {{ tournament.toornament_name }}
+            </option>
+
+          </select>
+
+          <label for="team1">Team 1:</label>
+          <select id="team1" v-model="formData.team1Id" required>
+            <option v-for="team in teams" :key="team.id">
+              {{ team.team_name }}
+            </option>
+
+          </select>
+
+          <label for="team2">Team 2:</label>
+          <select id="team2" v-model="formData.team2Id" required>
+            <option v-for="team in teams" :key="team.id">
+              {{ team.team_name }}
+            </option>
+
+          </select>
+
+          <label for="date">Date:</label>
+          <input type="date" id="date" v-model="formData.date" required />
+
+          <label for="score1">Score Team 1 (optional):</label>
+          <input type="number" id="score1" v-model="formData.score1" />
+
+          <label for="score2">Score Team 2 (optional):</label>
+          <input type="number" id="score2" v-model="formData.score2" />
+
+          <button type="submit">Add Match</button>
+          <button type="button" @click="closeAddMatchForm">Cancel</button>
+        </form>
       </div>
     </div>
   </div>
@@ -79,7 +118,18 @@ export default {
     return {
       matchesWithScores: [],
       matchesWithoutScores: [],
-      connected: "user", 
+      userRole : localStorage.getItem("userRole"),
+      tournaments: [],
+      teams: [],
+      formData: {
+        tournamentId: "",
+        team1Id: "",
+        team2Id: "",
+        date: "",
+        score1: "",
+        score2: "",
+      },
+      showForm: false,
     };
   },
   methods: {
@@ -103,14 +153,6 @@ export default {
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
 
-    switchconnect() {
-      const levels = ["user", "admin"];
-      this.connected = levels[(levels.indexOf(this.connected) + 1) % levels.length];
-    },
-
-    addMatch() {
-      alert("Add a match");
-    },
 
     async deleteMatch(matchId) {
       try {
@@ -120,6 +162,64 @@ export default {
       } catch (error) {
         console.error("Error deleting match:", error);
       }
+    },
+    logoutUser() {
+      localStorage.removeItem("userRole"); 
+      this.userRole = null; 
+      this.$router.push("/login");
+    },
+
+    async fetchTournamentsAndTeams() {
+      try {
+        const tournamentResponse = await axios.get("http://localhost:3000/api/toornament");
+        const teamResponse = await axios.get("http://localhost:3000/api/teams");
+        this.tournaments = tournamentResponse.data;
+        this.teams = teamResponse.data;
+      } catch (error) {
+        console.error("Error fetching toornaments or teams:", error);
+      }
+    },
+
+    showAddMatchForm() {
+      this.showForm = true;
+      this.fetchTournamentsAndTeams();
+    },
+
+
+    closeAddMatchForm() {
+      this.showForm = false;
+    },
+
+    async submitMatchForm() {
+  try {
+    await axios.post("http://localhost:3000/api/matches", this.formData);
+    alert("Match added successfully");
+    this.closeAddMatchForm();
+    this.fetchMatch();
+
+    this.resetForm();
+
+  } catch (error) {
+    console.error("Error adding match:", error);
+  }
+  
+},
+
+async resetForm() {
+  this.formData = {
+    tournamentId: "",
+    team1Id: "",
+    team2Id: "",
+    date: "",
+    score1: "",
+    score2: "",
+  }}
+
+
+  },
+  computed: {
+    isAuthenticated() {
+      return this.connected !== null;
     },
   },
   async mounted() {
@@ -317,26 +417,6 @@ p {
   background-color: #1f2937;
 }
 
-.connection-switch {
-  margin-top: 100px;
-  text-align: center;
-}
-
-.connection-switch button {
-  padding: 10px 20px;
-  font-size: 16px;
-  background-color: #85929e;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.connection-switch button:hover {
-  background-color: #5d6d7e;
-}
-
 .delete-btn {
   position: absolute;
   top: 10px;
@@ -352,4 +432,60 @@ p {
 .delete-btn:hover {
   color: #d32f2f;
 }
+
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  text-align: center;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  text-align: left;
+}
+
+select,
+input {
+  display: block;
+  margin: 5px auto 15px auto;
+  padding: 8px;
+  width: 90%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 10px 15px;
+  font-size: 16px;
+  background-color: #2874a6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 5px;
+}
+
+button:hover {
+  background-color: #1c5980;
+}
+
 </style>

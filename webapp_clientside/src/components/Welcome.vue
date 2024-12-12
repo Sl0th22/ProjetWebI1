@@ -9,9 +9,10 @@
         <ul>
           <li><router-link to="/">Home</router-link></li>
           <li><router-link to="/toornament">Toornament</router-link></li>
-          <li><router-link to="/match">Match</router-link></li>
-          <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/login">Login</router-link></li>
+          <li v-if="userRole"><router-link to="/match">Match</router-link></li>
+          <li v-if="userRole"><router-link to="/team">Team</router-link></li>
+          <li v-if="!isAuthenticated"><router-link to="/login">Login</router-link></li>
+          <li v-if="isAuthenticated"><a @click.prevent="logoutUser" href="#">Logout</a></li>
         </ul>
       </nav>
     </header>
@@ -25,9 +26,33 @@
 
 <script>
 export default {
-  name: 'Welcome'
+  name: "Welcome",
+  data() {
+    return {
+      userRole: sessionStorage.getItem("userRole"), 
+    };
+  },
+  computed: {
+    isAuthenticated() {
+      return this.userRole !== null;
+    },
+    isUserOrAdmin() {
+      return this.userRole;
+    },
+  },
+  methods: {
+    logoutUser() {
+      localStorage.removeItem("userRole"); 
+      this.userRole = null;
+      this.$router.push("/login");
+    },
+  },
+  mounted() {
+    this.userRole = localStorage.getItem("userRole");
+  },
 };
 </script>
+
 
 <style scoped>
 .welcome-page {
@@ -41,7 +66,6 @@ export default {
   background-image: url("../assets/bg.png");
   background-repeat: no-repeat;
   background-position: center 9px;
-
 }
 
 .navbar {
@@ -155,10 +179,5 @@ button:hover {
 button:active {
   background-color: white; 
   transform: scale(0.95);
-  
 }
-
-
-
-
 </style>
