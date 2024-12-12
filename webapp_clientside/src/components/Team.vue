@@ -12,7 +12,8 @@
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/login">Login</router-link></li>
+          <li v-if="!isAuthenticated"><router-link to="/login">Login</router-link></li>
+          <li v-if="isAuthenticated"><a @click.prevent="logoutUser" href="#">Logout</a></li>
         </ul>
       </nav>
     </header>
@@ -94,6 +95,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      userRole : localStorage.getItem("userRole"),
       showAddModal: false,
       showDeleteModal: false,
 
@@ -219,6 +221,8 @@ async deleteTeam() {
       data: { team_name: this.teamNameToDelete }
     });
 
+    console.log(response1);
+
 
     // -------------------------------------- Delete the team from the team table --------------------------------------
     const response = await axios.delete(`http://localhost:3000/api/teams/${this.teamNameToDelete}`); 
@@ -261,8 +265,19 @@ resetNewTeam() {
 formatDate(dateString) { // Function to format the date to cut the time
   const options = { year: "numeric", month: "2-digit", day: "2-digit" };
   return new Date(dateString).toLocaleDateString(undefined, options);
-}
 },
+logoutUser() {
+      localStorage.removeItem("userRole");
+      this.userRole = null;
+      this.$router.push("/login");
+    },
+},
+computed : {
+  isAuthenticated() {
+    return this.userRole !== null;
+  },
+},
+
 async mounted() {
   await this.fetchTeams();
 }

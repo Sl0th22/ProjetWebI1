@@ -60,5 +60,29 @@ module.exports = {
     } finally {
       connection.release(); // Libérer la connexion
     }
+  },
+
+  async getMatchesCountByTournament() {
+    const query = `
+      SELECT 
+        T.toornament_id,
+        T.toornament_name,
+        COUNT(M.matchs_id) AS match_count
+      FROM 
+        Toornament T
+      LEFT JOIN 
+        Matchs M 
+      ON 
+        T.toornament_id = M.toornament_id
+      GROUP BY 
+        T.toornament_id, 
+        T.toornament_name;
+        
+    `;
+    const [results] = await db.query(query);
+    console.log(results);
+    return results;
   }
+  
+  
 };

@@ -3,7 +3,7 @@
     <header class="navbar">
       <div class="navbar-left">
         <img src="@/assets/Sport_tournament.png" alt="Sport Tournament Logo" class="logo" />
-        <h1 class="site-title">The Sport Tournament</h1>
+        <h1 class="site-title">The Sport Toornament</h1>
       </div>
       <nav class="nav-links">
         <ul>
@@ -11,7 +11,8 @@
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/login">Login</router-link></li>
+          <li v-if="!isAuthenticated"><router-link to="/login">Login</router-link></li>
+          <li v-if="isAuthenticated"><a @click.prevent="logoutUser" href="#">Logout</a></li>
         </ul>
       </nav>
     </header>
@@ -20,7 +21,7 @@
     <div>
       <nav>
         <ul>
-          <li v-if="connected === 'admin'">
+          <li v-if="userRole === 'ADMIN'">
             <button class="add" @click="showAddModal = true">Add Tournament</button>
           </li>
         </ul>
@@ -37,20 +38,21 @@
     </div>
     <br />
     <div class="tournament-list">
-      <button @click="switchconnect">Connected: {{ connected }}</button>
       <hr />
       <div v-for="tournament in filteredTournaments" :key="tournament.toornament_id" class="tournament-item">
         <div class="title-container">
           <h2>{{ tournament.toornament_name }}</h2>
-          <button v-if="connected === 'admin'" class="delT" @click="deleteTournament(tournament.toornament_id)">X</button>
+          <button v-if="userRole === 'ADMIN'" class="delT" @click="deleteTournament(tournament.toornament_id)">X</button>
         </div>
 
         <p>Start date: {{ formatDate(tournament.toornament_start_date) }}</p>
         <p>End date: {{ formatDate(tournament.toornament_end_date) }}</p>
         <p>Location: {{ tournament.toornament_location }}</p>
+        <p>Number of matches: {{ (matchesCount[tournament.toornament_id - 1 ].match_count)/2 || 0}}</p>
 
-        <div v-if="connected === 'user'">
-          <button @click="openTeamSelection(tournament)">Register</button>
+
+        <div v-if="userRole === 'USER'">
+          <button @click="openTeamSelection(tournament)">Register your team</button>
         </div>
         <hr />
       </div>
@@ -95,7 +97,9 @@ import axios from "axios";
 export default {
   data() {
     return {
+      userRole : localStorage.getItem("userRole"),
       tournaments: [],
+      matchesCount: {},
       newTournament: {
         toornament_name: "",
         toornament_location: "",
@@ -122,8 +126,22 @@ export default {
       }
       return this.tournaments.filter((t) => t.toornament_location === this.selectedSport);
     },
+    isAuthenticated() {
+    return this.userRole !== null;
+  },
   },
   methods: {
+
+    async fetchMatchesCount() {
+    try {
+      const response = await axios.get("http://localhost:3000/api/toornament/matchesCount");
+      this.matchesCount = response.data;
+      console.log(this.matchesCount);
+    } catch (error) {
+      console.error("Error fetching matches count:", error.message);
+    }
+  },
+
     async fetchTournaments() {
       try {
         const response = await axios.get("http://localhost:3000/api/toornament");
@@ -133,13 +151,14 @@ export default {
       }
     },
     async fetchTeams() {
-      try {
-        const response = await axios.get("http://localhost:3000/api/teams");
-        this.teams = response.data;
-      } catch (error) {
-        console.error("Error during the recuparation of teams:", error.message);
-      }
-    },
+  try {
+    const response = await axios.get("http://localhost:3000/api/teams");
+    this.teams = response.data;
+    console.log("Teams fetched:", this.teams);
+  } catch (error) {
+    console.error("Error fetching teams:", error.message);
+  }
+},
     async addTournament() {
       try {
         await axios.post("http://localhost:3000/api/toornament", this.newTournament);
@@ -158,27 +177,25 @@ export default {
       }
     },
     async registerToTeam(tournament) {
-      if (!this.selectedTeam) {
-        alert("Please select a team.");
-        return;
-      }
-      try {
-        const payload = {
-          //player_id:1, //  Remplacez par l'ID du joueur connecté
-          team_id: this.selectedTeam,
-        };
-        await axios.post("http://localhost:3000/api/teams/join", payload);
-        alert("Inscription success !");
-        this.closeTeamModal();
-      } catch (error) {
-        console.error("Error while registering:", error.message);
-        alert("Not avalaible yet.");
-      }
-    },
-    switchconnect() {
-      const levels = ["visitor", "user", "admin"];
-      this.connected = levels[(levels.indexOf(this.connected) + 1) % levels.length];
-    },
+  try {
+    if (!this.selectedTeam) {
+      alert("Please select a team.");
+      return;
+    }
+
+    // Make API request to join the team to the tournament
+    await axios.post("http://localhost:3000/api/play/join", {
+      team_name: this.teams.find((team) => team.team_id === this.selectedTeam).team_name,
+      tournament_name: tournament.toornament_name,
+    });
+
+    alert("Successfully registered the team to the tournament!");
+    this.closeTeamModal(); // Close the modal after successful registration
+  } catch (error) {
+    console.error("Error while registering to the team:", error.message);
+    alert("Failed to register the team. Please try again.");
+  }
+},
     openTeamSelection(tournament) {
       this.selectedTournament = tournament;
       this.fetchTeams(); // Charger les équipes disponibles
@@ -196,9 +213,15 @@ export default {
       const options = { year: "numeric", month: "2-digit", day: "2-digit" };
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
+    logoutUser() {
+      localStorage.removeItem("userRole");
+      this.userRole = null;
+      this.$router.push("/login");
+    },
   },
   mounted() {
     this.fetchTournaments();
+    this.fetchMatchesCount();
   },
 };
 </script>

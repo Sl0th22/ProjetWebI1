@@ -11,7 +11,8 @@
           <li><router-link to="/toornament">Toornament</router-link></li>
           <li><router-link to="/match">Match</router-link></li>
           <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/login">Login</router-link></li>
+          <li v-if="!isAuthenticated"><router-link to="/login">Login</router-link></li>
+          <li v-if="isAuthenticated"><a @click.prevent="logoutUser" href="#">Logout</a></li>          
         </ul>
       </nav>
     </header>
@@ -110,6 +111,7 @@ import axios from "axios";
 export default {
   data() {
     return {
+      userRole : localStorage.getItem("userRole"),
       selectedPlayerId: null,
       id: '',
       team_id: null,
@@ -317,7 +319,18 @@ Edit() {
     validateEmail(email) {
       const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
       return emailPattern.test(email);
-    }
+    },
+    logoutUser() {
+      localStorage.removeItem("userRole"); // Remove the role from storage
+      this.userRole = null;
+      this.$router.push("/login");
+    },
+  },
+  computed: {
+    // Check if the user is authenticated
+    isAuthenticated() {
+      return this.userRole !== null;
+    },
   },
 
   mounted() {

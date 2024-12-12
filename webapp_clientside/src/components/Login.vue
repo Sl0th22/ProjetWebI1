@@ -9,22 +9,23 @@
         <ul>
           <li><router-link to="/">Home</router-link></li>
           <li><router-link to="/toornament">Toornament</router-link></li>
-          <li><router-link to="/match">Match</router-link></li>
-          <li><router-link to="/team">Team</router-link></li>
-          <li><router-link to="/login">Login</router-link></li>
+          <li v-if="isUserOrAdmin"><router-link to="/match">Match</router-link></li>
+          <li v-if="isUserOrAdmin"><router-link to="/team">Team</router-link></li>
+          <li v-if="!isAuthenticated"><router-link to="/login">Login</router-link></li>
+          <li v-if="isAuthenticated"><button @click="logoutUser">Logout</button></li>
         </ul>
       </nav>
     </header>
 
     <main class="content">
       <h2>{{ currentFormTitle }}</h2>
-
       <div class="form-switcher">
         <button @click="switchForm('login')" :class="{ active: currentForm === 'login' }">Login</button>
         <button @click="switchForm('register')" :class="{ active: currentForm === 'register' }">Register</button>
         <button @click="switchForm('resetPassword')" :class="{ active: currentForm === 'resetPassword' }">Reset Password</button>
       </div>
 
+      <!-- Login Form -->
       <form v-if="currentForm === 'login'" @submit.prevent="loginUser">
         <input type="text" v-model="log" placeholder="Username" required />
         <input type="password" v-model="pssw" placeholder="Password" required />
@@ -33,6 +34,7 @@
         <p v-if="successMessage" class="success-message">{{ successMessage }}</p>
       </form>
 
+      <!-- Register Form -->
       <form v-if="currentForm === 'register'" @submit.prevent="registerUser">
         <input type="text" v-model="newUsername" placeholder="Username" required />
         <input type="password" v-model="newPassword" placeholder="Password" required />
@@ -42,6 +44,7 @@
         <p v-if="registerSuccess" class="success-message">{{ registerSuccess }}</p>
       </form>
 
+      <!-- Reset Password Form -->
       <form v-if="currentForm === 'resetPassword'" @submit.prevent="resetPassword">
         <input type="text" v-model="resetLog" placeholder="Username" required />
         <input type="password" v-model="oldPssw" placeholder="Old Password" required />
@@ -57,14 +60,10 @@
 
 <script>
 export default {
-  name: 'AuthPage',
+  name: 'AuthenticationDemo',
   data() {
     return {
       currentForm: 'login', 
-
-      logs: ['log1', 'log2', 'log3'],
-      psswds: ['passw1', 'passw2', 'passwd3'],
-
       log: '',
       pssw: '',
       errorMessage: '',
@@ -82,6 +81,14 @@ export default {
     };
   },
   computed: {
+    isAuthenticated() {
+      return localStorage.getItem('userRole') !== null;
+    },
+
+    isUserOrAdmin() {
+      const role = localStorage.getItem('userRole');
+      return role === 'user' || role === 'admin';
+    },
     currentFormTitle() {
       if (this.currentForm === 'login') return 'Login';
       if (this.currentForm === 'register') return 'Register';
@@ -89,6 +96,76 @@ export default {
     },
   },
   methods: {
+    async loginUser() {
+  try {
+    const response = await this.$http.post('http://localhost:3000/auth/login', {
+      username: this.log,
+      userpass: this.pssw,
+    });
+
+    if (response.data.loginResult) {
+      localStorage.setItem('userRole', response.data.role); // store the role in local storage (most important part)
+      localStorage.setItem('username', response.data.username);
+      this.successMessage = 'Connexion established !';
+
+      setTimeout(() => {
+        this.$router.push('/');
+      }, 1000);
+    } else {
+      this.errorMessage = 'Username or password is incorrect.';
+    }
+  } catch (error) {
+    console.error(error);
+    this.errorMessage = 'An error occurred. Please try again.';
+  }
+},
+
+
+    async registerUser() {
+      const { newUsername, newPassword, confirmPassword } = this;
+      if (newPassword !== confirmPassword) {
+        this.registerError = 'The passwords do not match.';
+      } else {
+        try {
+          const response = await this.$http.post('http://localhost:3000/auth/register', {
+            username: newUsername,
+            password: newPassword,
+          });
+          this.registerSuccess = response.data.message;
+          this.registerError = '';
+          this.newUsername = '';
+          this.newPassword = '';
+          this.confirmPassword = '';
+        } catch (error) {
+          this.registerError = error.response.data.error;
+          this.registerSuccess = '';
+        }
+      }
+    },
+
+    async resetPassword() {
+      const { resetLog, oldPssw, newPssw } = this;
+      try {
+        const response = await this.$http.post('http://localhost:3000/auth/reset-password', {
+          username: resetLog,
+          oldPassword: oldPssw,
+          newPassword: newPssw,
+        });
+        this.successMessage = response.data.message;
+        this.errorMessage = '';
+        this.resetLog = '';
+        this.oldPssw = '';
+        this.newPssw = '';
+      } catch (error) {
+        this.errorMessage = error.response.data.error;
+        this.successMessage = '';
+      }
+    },
+
+    CancelReset() {
+      this.switchForm('login');
+    },
+
     switchForm(form) {
       this.currentForm = form;
       this.errorMessage = '';
@@ -105,54 +182,17 @@ export default {
       this.oldPssw = '';
       this.newPssw = '';
     },
-    loginUser() {
-      const logIndex = this.logs.indexOf(this.log);
-      if (logIndex !== -1 && this.psswds[logIndex] === this.pssw) {
-        this.successMessage = 'Connection successful ! Redirection...';
-        this.errorMessage = '';
-        setTimeout(() => {
-          this.$router.push('/Team');
-        }, 2000);
-      } else {
-        this.errorMessage = 'Username or password incorrect.';
-        this.successMessage = '';
-      }
-    },
-    registerUser() {
-      if (this.newPassword !== this.confirmPassword) {
-        this.registerError = 'Passwords do not match.';
-        this.registerSuccess = '';
-      } else if (this.logs.includes(this.newUsername)) {
-        this.registerError = 'Username already exists.';
-        this.registerSuccess = '';
-      } else {
-        this.logs.push(this.newUsername);
-        this.psswds.push(this.newPassword);
-        this.registerError = '';
-        this.registerSuccess = 'Registration successful!';
-        this.newUsername = '';
-        this.newPassword = '';
-        this.confirmPassword = '';
-      }
-    },
-    resetPassword() {
-      const logIndex = this.logs.indexOf(this.resetLog);
-      if (logIndex !== -1 && this.psswds[logIndex] === this.oldPssw) {
-        this.psswds[logIndex] = this.newPssw;
-        this.successMessage = 'Password changed successfully!';
-        this.errorMessage = '';
-        this.resetLog = '';
-        this.oldPssw = '';
-        this.newPssw = '';
-      } else {
-        this.errorMessage = 'Username or old password incorrect.';
-        this.successMessage = '';
-      }
-    },
-    CancelReset() {
-      this.switchForm('login');
+
+    logoutUser() {
+      localStorage.removeItem('userRole'); 
+      this.$router.push('/login'); 
     },
   },
+  mounted() {
+  if (localStorage.getItem('userRole')) {
+    this.$router.push('/'); 
+  }
+},
 };
 </script>
 

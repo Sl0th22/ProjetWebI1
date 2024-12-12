@@ -35,4 +35,18 @@ router.delete('/:matchId', async (req, res) => {
         res.status(500).json({ message: 'Server error.' });
     }
 })
+
+
+router.post('/', async (req, res) => {
+    try {
+        const match = req.body;
+        console.log('New match:', match);
+        const newMatch = await matchRepository.addMatch(match);
+
+        res.json(newMatch);
+    } catch (error) {
+        console.error('Error while adding a new match (matchapi.route.js):', error.message);
+        res.status(500).json({ message: 'Server error.' });
+    }
+})
 module.exports = router;

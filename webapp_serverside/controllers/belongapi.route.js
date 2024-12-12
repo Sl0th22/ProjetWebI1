@@ -57,6 +57,22 @@ router.delete('/', async (req, res) => {
           res.status(500).json({ message: 'Server error.' });
       }
   });
+
+  router.post('/add-players:', async (req, res) => {
+    try {
+      const { team_id, player_id } = req.body;
   
+      if (!team_id || !player_id) {
+        return res.status(400).json({ message: 'Team ID and Player ID are required.' });
+      }
+  
+      await belongRepository.addBelongRelation(team_id, player_id);
+  
+      res.status(201).json({ message: 'Player successfully registered to the team.' });
+    } catch (error) {
+      console.error('Error while adding player to team (belongapi.route.js):', error.message);
+      res.status(500).json({ message: 'Server error.' });
+    }
+  });
 
   module.exports = router;
