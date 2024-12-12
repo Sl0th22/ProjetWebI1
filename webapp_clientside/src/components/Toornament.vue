@@ -191,7 +191,6 @@ export default {
 
     alert("Successfully registered the team to the tournament!");
     this.closeTeamModal(); // Close the modal after successful registration
-    this.fetchMatch();
   } catch (error) {
     console.error("Error while registering to the team:", error.message);
     alert("Failed to register the team. Please try again.");
