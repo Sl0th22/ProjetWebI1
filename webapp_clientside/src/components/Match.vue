@@ -55,12 +55,55 @@
         <div v-if="userRole === 'ADMIN'" class="card add-card no-flip">
           <div class="card-inner">
             <div class="card-front">
-              <button class="add-match-button" @click="addMatch">
+              <button class="add-match-button" @click="showAddMatchForm">
                 <span class="plus">+</span>
               </button>
             </div>
           </div>
         </div>
+      </div>
+    </div>
+
+    <div v-if="showForm" class="modal">
+      <div class="modal-content">
+        <h2>Add a Match</h2>
+        <form @submit.prevent="submitMatchForm">
+          <label for="tournament">Toornament:</label>
+          <select id="tournament" v-model="formData.tournamentId" required>
+            <option v-for="tournament in tournaments" :key="tournament.id" >
+              {{ tournament.toornament_name }}
+            </option>
+
+          </select>
+
+          <label for="team1">Team 1:</label>
+          <select id="team1" v-model="formData.team1Id" required>
+            <option v-for="team in teams" :key="team.id">
+              {{ team.team_name }}
+            </option>
+
+          </select>
+
+          <label for="team2">Team 2:</label>
+          <select id="team2" v-model="formData.team2Id" required>
+            <option v-for="team in teams" :key="team.id">
+              {{ team.team_name }}
+            </option>
+
+          </select>
+
+          <label for="date">Date:</label>
+          <input type="date" id="date" v-model="formData.date" required />
+
+          <label for="score1">Score Team 1 (optional):</label>
+          <input type="number" id="score1" v-model="formData.score1" />
+
+          <label for="score2">Score Team 2 (optional):</label>
+          <input type="number" id="score2" v-model="formData.score2" />
+
+          <button type="submit">Add Match</button>
+          <button type="button" @click="closeAddMatchForm">Cancel</button>
+        </form>
       </div>
     </div>
   </div>
@@ -75,7 +118,18 @@ export default {
     return {
       matchesWithScores: [],
       matchesWithoutScores: [],
-      userRole : localStorage.getItem("userRole")
+      userRole : localStorage.getItem("userRole"),
+      tournaments: [],
+      teams: [],
+      formData: {
+        tournamentId: "",
+        team1Id: "",
+        team2Id: "",
+        date: "",
+        score1: "",
+        score2: "",
+      },
+      showForm: false,
     };
   },
   methods: {
@@ -99,9 +153,6 @@ export default {
       return new Date(dateString).toLocaleDateString(undefined, options);
     },
 
-    addMatch() {
-      alert("Add a match");
-    },
 
     async deleteMatch(matchId) {
       try {
@@ -117,6 +168,53 @@ export default {
       this.userRole = null; 
       this.$router.push("/login");
     },
+
+    async fetchTournamentsAndTeams() {
+      try {
+        const tournamentResponse = await axios.get("http://localhost:3000/api/toornament");
+        const teamResponse = await axios.get("http://localhost:3000/api/teams");
+        this.tournaments = tournamentResponse.data;
+        this.teams = teamResponse.data;
+      } catch (error) {
+        console.error("Error fetching toornaments or teams:", error);
+      }
+    },
+
+    showAddMatchForm() {
+      this.showForm = true;
+      this.fetchTournamentsAndTeams();
+    },
+
+
+    closeAddMatchForm() {
+      this.showForm = false;
+    },
+
+    async submitMatchForm() {
+  try {
+    await axios.post("http://localhost:3000/api/matches", this.formData);
+    alert("Match added successfully");
+    this.closeAddMatchForm();
+    this.fetchMatch();
+
+    this.resetForm();
+
+  } catch (error) {
+    console.error("Error adding match:", error);
+  }
+  
+},
+
+async resetForm() {
+  this.formData = {
+    tournamentId: "",
+    team1Id: "",
+    team2Id: "",
+    date: "",
+    score1: "",
+    score2: "",
+  }}
+
 
   },
   computed: {
@@ -334,4 +432,60 @@ p {
 .delete-btn:hover {
   color: #d32f2f;
 }
+
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+  text-align: center;
+}
+
+label {
+  display: block;
+  margin-top: 10px;
+  font-weight: bold;
+  text-align: left;
+}
+
+select,
+input {
+  display: block;
+  margin: 5px auto 15px auto;
+  padding: 8px;
+  width: 90%;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+button {
+  padding: 10px 15px;
+  font-size: 16px;
+  background-color: #2874a6;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin: 5px;
+}
+
+button:hover {
+  background-color: #1c5980;
+}
+
 </style>

@@ -74,22 +74,5 @@ router.delete('/', async (req, res) => {
       res.status(500).json({ message: 'Server error.' });
     }
   });
-  /*
-  router.post('/join', async (req, res) => {
-    try {
-      const { team_name, tournament_name } = req.body;
-  
-      if (!team_name || !tournament_name) {
-        return res.status(400).json({ message: 'Team name and tournament name are required.' });
-      }
-  
-      await belongRepository.joinTeamToTournament(team_name, tournament_name);
-      res.status(201).json({ message: 'Team successfully linked to tournament.' });
-    } catch (error) {
-      console.error('Error linking team to tournament:', error.message);
-      res.status(500).json({ message: 'Server error' });
-    }
-  });
-  */
 
   module.exports = router;

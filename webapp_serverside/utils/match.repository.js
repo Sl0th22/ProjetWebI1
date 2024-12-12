@@ -87,5 +87,66 @@ module.exports = {
             throw error;
         }
     },
+
+    async addMatch(match) {
+        try {
+            const [tournamentResult] = await db.query(`
+                SELECT toornament_id FROM toornament WHERE toornament_name = ?
+            `, [match.tournamentId]);            
+            const toornamentId = tournamentResult[0].toornament_id;
+    
+            const [team1Result] = await db.query(`
+                SELECT team_id FROM Team WHERE team_name = ?
+            `, [match.team1Id]);
+            
+            const [team2Result] = await db.query(`
+                SELECT team_id FROM Team WHERE team_name = ?
+            `, [match.team2Id]);
+    
+            if (team1Result.length === 0 || team2Result.length === 0) {
+                throw new Error('One or both teams not found');
+            }
+            const team1Id = team1Result[0].team_id;
+            const team2Id = team2Result[0].team_id;
+            
+            console.log(team1Result[0].team_id)
+            if (team1Id === team2Id) {
+                throw new Error('The same team cannot play against itself');
+            }
+
+            if (match.score1 !== "" || match.score2 !== "") {
+            const [newMatch] = await db.query(`
+                INSERT INTO Matchs (matchs_date, toornament_id, team1_id, team2_id, matchs_score1, matchs_score2)
+                VALUES (?, ?, ?, ?, ?, ?)
+            `, [match.date, toornamentId, team1Id, team2Id, match.score1, match.score2]);
+
+            const[doublon] = await db.query(`
+            INSERT INTO Matchs (matchs_date, toornament_id, team1_id, team2_id, matchs_score1, matchs_score2)
+            VALUES (?, ?, ?, ?, ?, ?)
+            `, [match.date, toornamentId, team2Id, team1Id, match.score2 ,  match.score1]);
+            return newMatch;
+            }
+
+
+            else{
+                const [newMatch] = await db.query(`
+                INSERT INTO Matchs (matchs_date, toornament_id, team1_id, team2_id)
+                VALUES (?, ?, ?, ?)
+            `, [match.date, toornamentId, team1Id, team2Id]);
+
+            const[doublon] = await db.query(`
+                INSERT INTO Matchs (matchs_date, toornament_id, team1_id, team2_id)
+                VALUES (?, ?, ?, ?)
+                `, [match.date, toornamentId, team2Id, team1Id]);
+
+
+            return newMatch;
+            }
+        } catch (error) {
+            console.error('Error while adding a new match sql (match.repository.js):', error.message);
+            throw error;
+        }
+    }
+    
 };
 
