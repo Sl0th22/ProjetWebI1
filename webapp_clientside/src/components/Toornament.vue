@@ -48,7 +48,7 @@
         <p>Start date: {{ formatDate(tournament.toornament_start_date) }}</p>
         <p>End date: {{ formatDate(tournament.toornament_end_date) }}</p>
         <p>Location: {{ tournament.toornament_location }}</p>
-        <p>Number of matches: {{ matchesCount[tournament.toornament_id - 1 ].match_count || 0}}</p>
+        <p>Number of matches: {{ (matchesCount[tournament.toornament_id - 1 ].match_count)/2 || 0}}</p>
 
 
         <div v-if="userRole === 'USER'">
